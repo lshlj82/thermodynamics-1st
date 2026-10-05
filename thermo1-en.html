@@ -1,0 +1,745 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Temperature, Heat, and the First Law</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F6F8FB; --grid:#E1E8F0; --ink:#1A2433; --muted:#5B6779; --panel:#FFFFFF; --line:#C8D2DE;
+  --cyan:#5DEBEE; --magenta:#E55ADC; --red:#DE3127; --blue:#2B46D4; --green:#18924A;
+  --copper:#C9773F;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#132039; --grid:#1B2B48; --ink:#E7EDF6; --muted:#9DAAC0; --panel:#192946; --line:#2D4064;
+    --cyan:#47DDE1; --magenta:#F07AE8; --red:#FF5B4F; --blue:#93A6FF; --green:#4FD27F; --copper:#E39461;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#132039; --grid:#1B2B48; --ink:#E7EDF6; --muted:#9DAAC0; --panel:#192946; --line:#2D4064;
+  --cyan:#47DDE1; --magenta:#F07AE8; --red:#FF5B4F; --blue:#93A6FF; --green:#4FD27F; --copper:#E39461;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 64px)}
+body{
+  margin:0; color:var(--ink); background-color:var(--paper);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:26px 26px;
+  font-family:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:17px; line-height:1.62; -webkit-font-smoothing:antialiased;
+}
+i,.m{font-style:italic}
+sub{font-size:.7em}
+a{color:var(--blue)}
+:focus-visible{outline:3px solid var(--magenta);outline-offset:2px;border-radius:3px}
+
+/* nav */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.bar-in{max-width:1080px;margin:0 auto;padding:10px 20px;display:flex;align-items:center;gap:18px}
+.toc{display:flex;gap:4px;overflow-x:auto;flex:1;scrollbar-width:none}
+.toc::-webkit-scrollbar{display:none}
+.toc a{white-space:nowrap;text-decoration:none;color:var(--muted);font-size:14px;padding:4px 9px;border-radius:6px}
+.toc a:hover{color:var(--ink);background:var(--grid)}
+.toc a span{color:var(--blue);font-weight:700;margin-right:4px}
+.langlink{flex:none;font-size:14px;padding:4px 12px;border:1.5px solid var(--ink);border-radius:8px;color:var(--ink);text-decoration:none}
+.langlink:hover{background:var(--ink);color:var(--paper)}
+
+/* hero */
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+.hero{padding:56px 0 28px}
+.credit{font-size:15px;color:var(--muted);margin:0 0 18px;max-width:60ch}
+.credit b{color:var(--ink);font-weight:500}
+h1{font-size:clamp(40px,7vw,78px);line-height:1.04;letter-spacing:-.02em;margin:0;font-weight:700;max-width:14ch}
+.hero p.sub{font-size:19px;max-width:56ch;margin:18px 0 0}
+.hero-wire{width:100%;height:auto;display:block;margin-top:34px}
+.scrawl{color:var(--blue);font-size:15px;font-weight:500;line-height:1.5;border-left:3px solid currentColor;padding:2px 0 2px 12px;max-width:52ch}
+
+/* sections */
+section{padding:56px 0 24px;border-top:1px dashed var(--line)}
+h2{font-size:clamp(26px,3.6vw,36px);line-height:1.15;margin:0 0 14px;letter-spacing:-.01em;display:flex;gap:14px;align-items:baseline}
+h2 .n{font-size:.62em;color:var(--blue);border:2px solid var(--blue);border-radius:50%;width:1.7em;height:1.7em;display:inline-grid;place-items:center;flex:none;transform:translateY(-.15em)}
+.prose{max-width:68ch}
+.prose p{margin:0 0 12px}
+.key{display:inline-flex;flex-wrap:wrap;gap:10px 34px;align-items:center;border:6px solid var(--cyan);border-radius:5px;padding:12px 22px;margin:8px 0 22px;font-size:19px;background:var(--panel)}
+.key span{white-space:nowrap}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;font-size:.9em;line-height:1.15;margin:0 2px}
+.frac>span:first-child{border-bottom:1.5px solid currentColor;padding:0 3px}
+
+.sim{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(250px,1fr);gap:18px;background:var(--panel);border:1.5px solid var(--line);border-radius:12px;padding:18px}
+@media (max-width:820px){.sim{grid-template-columns:1fr}}
+.viz{min-width:0;display:flex;flex-direction:column;gap:12px}
+.viz svg,.viz canvas{width:100%;display:block}
+.controls{display:flex;flex-direction:column;gap:12px;min-width:0}
+.ctl label{display:flex;justify-content:space-between;gap:8px;font-size:15px}
+.ctl output{font-variant-numeric:tabular-nums;font-weight:500}
+input[type=range]{width:100%;accent-color:var(--blue);margin:4px 0 0}
+select{font:inherit;font-size:15px;width:100%;padding:6px 8px;border-radius:7px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink)}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button,.btn{font:inherit;font-size:14px;padding:5px 11px;border-radius:7px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);cursor:pointer}
+.seg button[aria-pressed="true"]{border-color:var(--blue);background:var(--blue);color:var(--panel)}
+.check{display:flex;gap:8px;align-items:center;font-size:15px;cursor:pointer}
+.check input{accent-color:var(--blue);width:17px;height:17px}
+.lbl{font-size:15px;margin-bottom:4px;display:block}
+dl.read{display:grid;grid-template-columns:1fr auto;gap:5px 12px;margin:4px 0 0;font-size:15px;border-top:1px solid var(--line);padding-top:10px}
+dl.read dt{color:var(--muted)}
+dl.read dd{margin:0;text-align:right;font-variant-numeric:tabular-nums;font-weight:500}
+.verdict{font-size:15px;padding:8px 12px;border-radius:8px;border-left:5px solid var(--magenta);background:color-mix(in srgb,var(--magenta) 10%,transparent)}
+.aside{margin-top:18px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px;align-items:start}
+@media (max-width:820px){.aside{grid-template-columns:1fr}}
+.boxed{border:1.5px solid var(--line);border-radius:10px;padding:14px 16px;background:var(--panel);font-size:16px}
+.boxed h3{margin:0 0 6px;font-size:17px}
+
+.mag{color:var(--magenta)}
+.bars{display:flex;flex-direction:column;gap:7px;font-size:14px}
+.bar-row{display:grid;grid-template-columns:minmax(0,1fr) 72px;gap:8px;align-items:center}
+.bar-track{height:14px;background:var(--grid);border-radius:4px;overflow:hidden;position:relative}
+.bar-fill{height:100%;border-radius:4px;transition:width .15s}
+.bar-row .v{text-align:right;font-variant-numeric:tabular-nums}
+.bar-cap{grid-column:1/-1;color:var(--muted);margin-bottom:-4px}
+table.tbl{border-collapse:collapse;width:100%;font-size:15px;font-variant-numeric:tabular-nums}
+.tbl th,.tbl td{padding:5px 8px;border-bottom:1px solid var(--line);text-align:right}
+.tbl th:first-child,.tbl td:first-child{text-align:left}
+.tbl th{color:var(--muted);font-weight:500}
+.eq{font-size:16px;line-height:1.7}
+.eq .sum{font-weight:700}
+.small{font-size:14px;color:var(--muted)}
+footer{padding:40px 0 60px;border-top:1px dashed var(--line);margin-top:40px;color:var(--muted);font-size:15px}
+svg text{font-family:"IBM Plex Sans KR",system-ui,sans-serif;fill:var(--ink)}
+svg .wire{stroke:var(--ink);stroke-width:2.2;fill:none;stroke-linejoin:round}
+svg .flow{stroke:var(--red);stroke-width:5;fill:none;stroke-linecap:round;stroke-dasharray:0.1 15}
+svg .axis{stroke:var(--muted);stroke-width:1.2}
+svg .gridl{stroke:var(--grid);stroke-width:1}
+@media (prefers-reduced-motion:reduce){.bar-fill{transition:none}}
+
+.hero-curve{width:100%;height:auto;display:block;margin-top:30px}
+.hero-curve .q{stroke:var(--blue);stroke-width:3.5;fill:none;stroke-dasharray:1400;stroke-dashoffset:1400;animation:draw 2.6s cubic-bezier(.3,.6,.4,1) .3s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+@media (prefers-reduced-motion:reduce){.hero-curve .q{animation:none;stroke-dashoffset:0}}
+.stack{display:flex;height:16px;border-radius:4px;overflow:hidden;background:var(--grid)}
+.stack div{height:100%;transition:width .08s linear}
+.legend{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:14px;color:var(--muted)}
+.legend i.sw{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px;font-style:normal}
+.pill{font-size:14px;padding:6px 10px;border-radius:8px;background:color-mix(in srgb,var(--blue) 10%,transparent);border-left:4px solid var(--blue)}
+.sim.one{grid-template-columns:minmax(0,1fr) minmax(250px,.8fr)}
+@media (max-width:820px){.sim.one{grid-template-columns:1fr}}
+
+.sqrt{display:inline-block;position:relative;padding-left:.6em;margin-left:.06em;white-space:nowrap}
+.sqrt::before{content:"";position:absolute;left:0;top:0;bottom:.02em;width:.63em;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 24' preserveAspectRatio='none'%3E%3Cpath d='M0 14.2L3.4 12.3L6.9 20.1L11 0H12V1.5H11.95L7.5 23.6H6.3L2.8 15.3L.7 16.3Z'/%3E%3C/svg%3E") no-repeat 0 0/100% 100%;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 24' preserveAspectRatio='none'%3E%3Cpath d='M0 14.2L3.4 12.3L6.9 20.1L11 0H12V1.5H11.95L7.5 23.6H6.3L2.8 15.3L.7 16.3Z'/%3E%3C/svg%3E") no-repeat 0 0/100% 100%}
+.sqrt>span{display:inline-block;border-top:.075em solid currentColor;padding:.1em .1em 0 .05em;line-height:1.15}
+.ss{display:inline-block;vertical-align:-.3em;line-height:1;font-size:.72em;margin-left:.03em;text-align:left}
+.ss>sup,.ss>sub{display:block;vertical-align:0;font-size:1em;line-height:1.08;position:static}
+
+.hero-ro{width:100%;height:auto;display:block;margin-top:24px}
+.toc a{padding:4px 7px}
+.btnrow{display:flex;gap:6px;flex-wrap:wrap}
+.ctl.off{opacity:.4;pointer-events:none}
+.key{max-width:100%}
+sub{padding-right:.07em}
+@media (max-width:600px){.key>span{white-space:normal;min-width:0}}
+table.ana{border-collapse:collapse;width:100%;max-width:760px;margin:14px 0;font-size:15px}
+table.ana th,table.ana td{border-bottom:1px solid var(--line);padding:6px 10px;text-align:left}
+table.ana th{color:var(--muted);font-weight:500}
+.tablewrap{overflow-x:auto}
+.bar-track.sgn::after{content:"";position:absolute;left:50%;top:-3px;bottom:-3px;width:1.5px;background:var(--muted)}
+.tablewrap{margin-top:10px}
+</style>
+</head>
+<body>
+<nav class="bar" aria-label="Sections"><div class="bar-in"><div class="toc" id="toc"></div>
+<a class="langlink" href="thermo1-ko.html" hreflang="ko" lang="ko">한국어</a></div></nav>
+
+<header class="wrap hero">
+  <p class="credit" data-i18n="credit"></p>
+  <h1 data-i18n="title"></h1>
+  <p class="sub" data-i18n="subtitle"></p>
+  <svg class="hero-ro" id="hero" viewBox="0 0 1000 205" aria-hidden="true"></svg>
+</header>
+
+<main class="wrap">
+<section id="s1"><h2><span class="n">1</span><span data-i18n="h1"></span></h2>
+  <div class="prose"><p data-i18n="p1a"></p><p data-i18n="p1b"></p></div>
+  <div class="key"><span>0 K = −273.15 °C</span><span><span data-i18n="k1d"></span></span><span>[°C] = ([°F] − 32)<span class="frac"><span>5</span><span>9</span></span></span><span>[°F] = [°C]<span class="frac"><span>9</span><span>5</span></span> + 32</span></div>
+  <div class="sim"><div class="viz"><svg id="v1" viewBox="0 0 440 280" role="img" aria-label="Bodies A and B with a thermometer, and a three-scale thermometer"></svg></div><div class="controls" id="c1"></div></div>
+</section>
+<section id="s2"><h2><span class="n">2</span><span data-i18n="h2"></span></h2>
+  <div class="prose"><p data-i18n="p2a"></p><p data-i18n="p2b"></p></div>
+  <div class="key"><span>Δ<i>L</i> = <i>αL</i>Δ<i>T</i></span><span>Δ<i>V</i> ≈ 3<i>αV</i>Δ<i>T</i></span><span><i>β</i> ≈ 3<i>α</i></span></div>
+  <div class="sim"><div class="viz"><svg id="v2" viewBox="0 0 440 250" role="img" aria-label="A bimetallic strip of brass and steel bending as it is heated"></svg></div><div class="controls" id="c2"></div></div>
+</section>
+<section id="s3"><h2><span class="n">3</span><span data-i18n="h3"></span></h2>
+  <div class="prose"><p data-i18n="p3a"></p><p data-i18n="p3b"></p></div>
+  <div class="key"><span><i>Q</i> = <i>C</i>Δ<i>T</i> = <i>C</i>(<i>T</i><sub>f</sub> − <i>T</i><sub>i</sub>)</span><span><i>Q</i> = <i>cm</i>Δ<i>T</i></span><span><i>C</i> = <i>cm</i></span><span>1 cal = 4.186 J</span></div>
+  <div class="sim"><div class="viz"><svg id="v3" viewBox="0 0 440 280" role="img" aria-label="A material and water heated side by side, with temperature graphs"></svg></div><div class="controls" id="c3"></div></div>
+</section>
+<section id="s4"><h2><span class="n">4</span><span data-i18n="h4"></span></h2>
+  <div class="prose"><p data-i18n="p4a"></p><p data-i18n="p4b"></p></div>
+  <div class="key"><span><i>Q</i> = <i>Lm</i></span><span><i>L</i><sub>V</sub> = 2256 kJ/kg</span><span><i>L</i><sub>F</sub> = 333 kJ/kg</span></div>
+  <div class="sim"><div class="viz"><svg id="v4" viewBox="0 0 440 300" role="img" aria-label="Heating curve of water from ice to steam, with a beaker"></svg></div><div class="controls" id="c4"></div></div>
+</section>
+<section id="s5"><h2><span class="n">5</span><span data-i18n="h5"></span></h2>
+  <div class="prose"><p data-i18n="p5a"></p><p data-i18n="p5b"></p></div>
+  <div class="key"><span>d<i>W</i> = <b>F</b> · d<b>s</b> = (<i>pA</i>)d<i>s</i> = <i>p</i> d<i>V</i></span><span><i>W</i> = ∫d<i>W</i> = ∫<span class="ss"><sup><i>V</i><sub>f</sub></sup><sub><i>V</i><sub>i</sub></sub></span> <i>p</i> d<i>V</i></span></div>
+  <div class="sim"><div class="viz"><svg id="v5" viewBox="0 0 440 280" role="img" aria-label="A gas in a cylinder and paths on a p–V diagram"></svg></div><div class="controls" id="c5"></div></div>
+</section>
+<section id="s6"><h2><span class="n">6</span><span data-i18n="h6"></span></h2>
+  <div class="prose"><p data-i18n="p6a"></p><p data-i18n="p6b"></p></div>
+  <div class="key"><span>Δ<i>E</i><sub>int</sub> = <i>E</i><sub>int</sub>,f − <i>E</i><sub>int</sub>,i = <i>Q</i> − <i>W</i></span><span>d<i>E</i><sub>int</sub> = d<i>Q</i> − d<i>W</i></span><span>Δ<i>E</i><sub>int</sub> = <i>Q</i> + <i>W</i><sub>on</sub></span></div>
+  <div class="sim"><div class="viz"><svg id="v6" viewBox="0 0 440 262" role="img" aria-label="Three paths between the same two states on a p–V diagram"></svg><div class="bars" id="bars6"></div><div class="tablewrap"><table class="tbl" id="tbl6"></table></div></div><div class="controls" id="c6"></div></div>
+</section>
+<section id="s7"><h2><span class="n">7</span><span data-i18n="h7"></span></h2>
+  <div class="prose"><p data-i18n="p7a"></p><p data-i18n="p7b"></p></div>
+  <div class="key"><span><span data-i18n="k7a"></span>: <i>Q</i> = 0 → Δ<i>E</i><sub>int</sub> = −<i>W</i></span><span><span data-i18n="k7v"></span>: <i>W</i> = 0 → Δ<i>E</i><sub>int</sub> = <i>Q</i></span><span><span data-i18n="k7c"></span>: Δ<i>E</i><sub>int</sub> = 0 → <i>Q</i> = <i>W</i></span><span><span data-i18n="k7f"></span>: <i>Q</i> = <i>W</i> = Δ<i>E</i><sub>int</sub> = 0</span></div>
+  <div class="sim"><div class="viz"><svg id="v7" viewBox="0 0 440 262" role="img" aria-label="Special processes of the first law on a p–V diagram"></svg><div class="bars" id="bars7"></div></div><div class="controls" id="c7"></div></div>
+</section>
+<section id="s8"><h2><span class="n">8</span><span data-i18n="h8"></span></h2>
+  <div class="prose"><p data-i18n="p8a"></p><p data-i18n="p8b"></p></div>
+  <div class="key"><span><i>P</i><sub>cond</sub> = <span class="frac"><span><i>Q</i></span><span><i>t</i></span></span> = <i>kA</i><span class="frac"><span><i>T</i><sub>H</sub> − <i>T</i><sub>C</sub></span><span><i>L</i></span></span></span><span><i>R</i> = <span class="frac"><span><i>L</i></span><span><i>k</i></span></span></span><span><i>P</i><sub>rad</sub> = <i>σεAT</i><sup>4</sup></span></div>
+  <div class="sim"><div class="viz"><svg id="v8" viewBox="0 0 440 260" role="img" aria-label="Heat conduction through a slab, or radiation from a hot body"></svg></div><div class="controls" id="c8"></div></div>
+</section>
+<section id="s9"><h2><span class="n">9</span><span data-i18n="h9"></span></h2>
+  <div class="prose"><p data-i18n="p9a"></p><p data-i18n="p9b"></p></div>
+  <div class="key"><span><i>n</i> = <span class="frac"><span><i>N</i></span><span><i>N</i><sub>A</sub></span></span> = <span class="frac"><span><i>M</i><sub>sam</sub></span><span><i>M</i></span></span></span><span><i>pV</i> = <i>nRT</i> = <i>NkT</i></span><span><i>R</i> = 8.31 J/(mol·K)</span><span><i>k</i> = <span class="frac"><span><i>R</i></span><span><i>N</i><sub>A</sub></span></span> = 1.38 × 10<sup>−23</sup> J/K</span></div>
+  <div class="sim"><div class="viz"><svg id="v9" viewBox="0 0 440 280" role="img" aria-label="Gas in a cylinder with its state on a p–V diagram"></svg></div><div class="controls" id="c9"></div></div>
+</section>
+<section id="s10"><h2><span class="n">10</span><span data-i18n="h10"></span></h2>
+  <div class="prose"><p data-i18n="p10"></p></div>
+  <div class="key"><span><i>W</i> = ∫<span class="ss"><sup><i>V</i><sub>f</sub></sup><sub><i>V</i><sub>i</sub></sub></span> <span class="frac"><span><i>nRT</i></span><span><i>V</i></span></span>d<i>V</i> = <i>nRT</i> ln<span class="frac"><span><i>V</i><sub>f</sub></span><span><i>V</i><sub>i</sub></span></span></span><span><i>W</i> = <i>p</i>(<i>V</i><sub>f</sub> − <i>V</i><sub>i</sub>) = <i>p</i>Δ<i>V</i></span><span><i>V</i> = const → <i>W</i> = 0</span></div>
+  <div class="sim"><div class="viz"><svg id="v10" viewBox="0 0 440 260" role="img" aria-label="Work done by an ideal gas as the area under a p–V curve"></svg></div><div class="controls" id="c10"></div></div>
+</section>
+<section id="s11"><h2><span class="n">11</span><span data-i18n="h11"></span></h2>
+  <div class="prose"><p data-i18n="p11a"></p><p data-i18n="p11b"></p></div>
+  <div class="key"><span>Δ<i>p</i><sub>x</sub> = −2<i>mv</i><sub>x</sub></span><span>Δ<i>t</i> = <span class="frac"><span>2<i>L</i></span><span><i>v</i><sub>x</sub></span></span></span><span><i>p</i> = <span class="frac"><span><i>nM</i>(<i>v</i><sup>2</sup>)<sub>avg</sub></span><span>3<i>V</i></span></span></span><span><i>v</i><sub>rms</sub> = <span class="sqrt"><span><span class="frac"><span>3<i>RT</i></span><span><i>M</i></span></span></span></span></span></div>
+  <div class="sim"><div class="viz"><svg id="v11" viewBox="0 0 440 270" role="img" aria-label="Molecules bouncing in a box and the pressure on one wall"></svg></div><div class="controls" id="c11"></div></div>
+</section>
+<section id="s12"><h2><span class="n">12</span><span data-i18n="h12"></span></h2>
+  <div class="prose"><p data-i18n="p12a"></p><p data-i18n="p12b"></p></div>
+  <div class="key"><span><i>K</i><sub>avg</sub> = <span class="frac"><span>3</span><span>2</span></span><i>kT</i></span><span><i>P</i>(<i>v</i>) = 4π(<span class="frac"><span><i>M</i></span><span>2π<i>RT</i></span></span>)<sup>3/2</sup><i>v</i><sup>2</sup><i>e</i><sup>−<i>Mv</i><sup>2</sup>/(2<i>RT</i>)</sup></span><span><i>v</i><sub>p</sub> = <span class="sqrt"><span><span class="frac"><span>2<i>RT</i></span><span><i>M</i></span></span></span></span>, <i>v</i><sub>avg</sub> = <span class="sqrt"><span><span class="frac"><span>8<i>RT</i></span><span>π<i>M</i></span></span></span></span>, <i>v</i><sub>rms</sub> = <span class="sqrt"><span><span class="frac"><span>3<i>RT</i></span><span><i>M</i></span></span></span></span></span></div>
+  <div class="sim"><div class="viz"><svg id="v12" viewBox="0 0 440 250" role="img" aria-label="Maxwell speed distributions at two temperatures"></svg></div><div class="controls" id="c12"></div></div>
+</section>
+<section id="s13"><h2><span class="n">13</span><span data-i18n="h13"></span></h2>
+  <div class="prose"><p data-i18n="p13a"></p><p data-i18n="p13b"></p></div>
+  <div class="key"><span><i>E</i><sub>int</sub> = <span class="frac"><span>3</span><span>2</span></span><i>nRT</i></span><span><i>Q</i> = <i>nC</i><sub>V</sub>Δ<i>T</i>, <i>C</i><sub>V</sub> = <span class="frac"><span>3</span><span>2</span></span><i>R</i></span><span><i>Q</i> = <i>nC</i><sub>p</sub>Δ<i>T</i>, <i>C</i><sub>p</sub> = <i>C</i><sub>V</sub> + <i>R</i></span><span>Δ<i>E</i><sub>int</sub> = <i>nC</i><sub>V</sub>Δ<i>T</i></span></div>
+  <div class="sim"><div class="viz"><svg id="v13" viewBox="0 0 440 295" role="img" aria-label="Two cylinders heated at constant volume and at constant pressure"></svg><div class="bars" id="bars13"></div></div><div class="controls" id="c13"></div></div>
+</section>
+<section id="s14"><h2><span class="n">14</span><span data-i18n="h14"></span></h2>
+  <div class="prose"><p data-i18n="p14a"></p><p data-i18n="p14b"></p></div>
+  <div class="key"><span><span data-i18n="k14"></span> <span class="frac"><span>1</span><span>2</span></span><i>kT</i></span><span><i>C</i><sub>V</sub> = <span class="frac"><span><i>f</i></span><span>2</span></span><i>R</i></span><span><i>γ</i> = <span class="frac"><span><i>C</i><sub>p</sub></span><span><i>C</i><sub>V</sub></span></span></span></div>
+  <div class="sim"><div class="viz"><svg id="v14" viewBox="0 0 440 250" role="img" aria-label="A molecule with its degrees of freedom and C_V/R versus temperature"></svg></div><div class="controls" id="c14"></div></div>
+</section>
+<section id="s15"><h2><span class="n">15</span><span data-i18n="h15"></span></h2>
+  <div class="prose"><p data-i18n="p15a"></p><p data-i18n="p15b"></p></div>
+  <div class="key"><span><i>pV</i><sup><i>γ</i></sup> = const</span><span><i>TV</i><sup><i>γ</i>−1</sup> = const</span><span><i>p</i><sub>i</sub><i>V</i><span class="ss"><sup><i>γ</i></sup><sub>i</sub></span> = <i>p</i><sub>f</sub><i>V</i><span class="ss"><sup><i>γ</i></sup><sub>f</sub></span></span></div>
+  <div class="sim"><div class="viz"><svg id="v15" viewBox="0 0 440 262" role="img" aria-label="An adiabat compared with isotherms on a p–V diagram"></svg></div><div class="controls" id="c15"></div></div>
+</section>
+</main>
+<footer class="wrap"><p data-i18n="credit"></p></footer>
+
+<script>
+const I18N={
+en:{
+ nav:["Zeroth law","Thermal expansion","Specific heat","Phase changes","Work by a gas","First law","Special cases","Heat transfer","Ideal gas","Ideal-gas work","Pressure & v<sub>rms</sub>","Speed distribution","C<sub>V</sub> and C<sub>p</sub>","Degrees of freedom","Adiabatic expansion"],
+ credit:"Created by <b>Claude Opus 5.5</b>, based on the lecture notes by <b>Sang Hoon Lee (이상훈)</b>.",
+ title:"Temperature, heat, and the first law of thermodynamics",
+ subtitle:"Temperature and thermal equilibrium, heat and specific heat, work done by a gas, the first law, heat transfer, and the kinetic theory of gases that explains it all from moving molecules. Move any control and every number on the page is recomputed on the spot.",
+ play:"Play",pause:"Pause",reset:"Start again",snd:"Play sound",sndOff:"Stop sound",mass:"Mass <i>m</i>",path:"Path",mono:"Monatomic",di:"Diatomic",gas:"Gas",gs13:"Gas",
+ bQ:"Heat into the gas <i>Q</i>",bW:"Work done by the gas <i>W</i>",bE:"Δ<i>E</i><sub>int</sub> = <i>Q</i> − <i>W</i>",rQ6:"<i>Q</i>",rW6:"<i>W</i>",rE6:"Δ<i>E</i><sub>int</sub>",
+ s5p:"<i>W</i> &gt; 0: the gas does work (expansion)",s5n:"<i>W</i> &lt; 0: work is done on the gas (compression)",s5c:"net work of the cycle, <i>W</i> &gt; 0",meas17:"measuring…",
+ m_lead:"Lead",m_tung:"Tungsten",m_silv:"Silver",m_copp:"Copper",m_alum:"Aluminum",m_brass:"Brass",m_gran:"Granite",m_glass:"Glass",m_merc:"Mercury",m_eth:"Ethyl alcohol",m_sea:"Seawater",m_water:"Water",m_steel:"Steel",m_brick:"Brick",m_wood:"Wood",m_fib:"Fiberglass",m_air:"Air",
+ g_H2:"Hydrogen H₂ (2.0 g/mol)",g_He:"Helium He (4.0 g/mol)",g_N2:"Nitrogen N₂ (28 g/mol)",g_O2:"Oxygen O₂ (32 g/mol)",g_CO2:"Carbon dioxide CO₂ (44 g/mol)",
+
+ h1:"Temperature and the zeroth law",
+ p1a:"<b>Thermodynamics</b> is the study and application of the thermal energy, often called the <b>internal energy</b>, of systems. Its central concept is <b>temperature</b>. We all know hot and cold, but that is a vague description: how do we measure it? Temperature is one of the SI base quantities, with the unit kelvin (K). In daily life we also use degrees Celsius (°C, most of the world) and Fahrenheit (°F, the United States). 0 K = −273.15 °C, so 273.15 K = 0 °C, and a change of 1 K is the same as a change of 1 °C. The conversions are [°C] = ([°F] − 32)(5/9) and [°F] = [°C](9/5) + 32.",
+ p1b:"The <b>zeroth law of thermodynamics</b> is what lets us define temperature: “If bodies A and B are each in thermal equilibrium with a third body T, then A and B are in thermal equilibrium with each other.” <b>Thermal equilibrium</b> means the temperatures are equal, so no heat flows (heat is defined below). A = T and B = T, so A = B: too obvious? It means that “temperature” is a well-defined quantity. Below, the thermometer T touches A, then B; each time it settles to that body's temperature, and it reads the same for both exactly when A and B, put together, exchange no heat.",
+ TA1:"Initial temperature of A",TB1:"Initial temperature of B",ct1:"In contact",ctN:"nothing",ctTA:"T with A",ctTB:"T with B",ctAB:"A with B",
+ rTA1:"Temperature of A",rTB1:"Temperature of B",rTK1:"Thermometer reading (K)",rTC1:"Thermometer reading (°C)",rTF1:"Thermometer reading (°F)",rSt1:"A and B",eqAB1:"in thermal equilibrium",neqAB1:"not in thermal equilibrium",k1d:"Δ1 K = Δ1 °C",
+
+ h2:"Thermal expansion",
+ p2a:"Most materials expand when heated: the larger temperature makes the atoms vibrate with larger amplitude, so the average distance between them grows. When a body of length <i>L</i> undergoes a small temperature change Δ<i>T</i>, its length changes by Δ<i>L</i> = <i>αL</i>Δ<i>T</i>, where <i>α</i> is the <b>coefficient of linear expansion</b> of the material, measured in experiments for copper, aluminum, steel and many others. Example: brass (copper + zinc) has <i>α</i> ≈ 19 × 10<sup>−6</sup>/°C and steel <i>α</i> ≈ 11 × 10<sup>−6</sup>/°C. Bond them into a strip at <i>T</i><sub>0</sub>; when heated, the brass grows more than the steel, and the strip bends.",
+ p2b:"Volume expansion: if <i>L</i> → <i>L</i> + Δ<i>L</i> = <i>L</i>(1 + <i>α</i>Δ<i>T</i>), then <i>L</i><sup>3</sup> → <i>L</i><sup>3</sup>(1 + <i>α</i>Δ<i>T</i>)<sup>3</sup> = <i>L</i><sup>3</sup>(1 + 3<i>α</i>Δ<i>T</i> + 3<i>α</i><sup>2</sup>Δ<i>T</i><sup>2</sup> + <i>α</i><sup>3</sup>Δ<i>T</i><sup>3</sup>). For small Δ<i>T</i> the last two terms are negligible, so with <i>V</i> = <i>L</i><sup>3</sup>, Δ<i>V</i> ≈ 3<i>αV</i>Δ<i>T</i>: the coefficient of volume expansion is about 3 times <i>α</i>. The readouts compare this with the exact value.",
+ dT2:"Temperature change Δ<i>T</i>",L2:"Strip length <i>L</i>",brass2:"brass, α = 19×10⁻⁶ /°C",steel2:"steel, α = 11×10⁻⁶ /°C",
+ rDLb2:"Δ<i>L</i> of brass alone",rDLs2:"Δ<i>L</i> of steel alone",rTip2:"Tip deflection <i>δ</i> (1 mm thick strip)",rDV2:"Δ<i>V</i>/<i>V</i> of brass ≈ 3<i>α</i>Δ<i>T</i>",rDVe2:"Δ<i>V</i>/<i>V</i> exact, (1 + <i>α</i>Δ<i>T</i>)<sup>3</sup> − 1",
+
+ h3:"Heat, heat capacity, and specific heat",
+ p3a:"<b>Thermal energy</b> is internal energy made of the kinetic and potential energies of the random motion of atoms and molecules. Energy flows between a <b>system</b> and its <b>environment</b> because their temperatures differ, until they are equal. Energy transferred this way is called <b>heat</b>, written <i>Q</i>. If <i>T</i><sub>S</sub> &gt; <i>T</i><sub>E</sub>, energy flows out of the system: <i>Q</i> &lt; 0. If <i>T</i><sub>S</sub> &lt; <i>T</i><sub>E</sub>, it flows in: <i>Q</i> &gt; 0. If <i>T</i><sub>S</sub> = <i>T</i><sub>E</sub>, the two are in thermal equilibrium and <i>Q</i> = 0. Besides heat, energy is also transferred as <b>work</b>; heat, work and energy all have the dimension of energy, with the SI unit J. The <b>calorie</b> is the heat needed to raise 1 g of water from 14.5 °C to 15.5 °C: 1 cal = 3.969 × 10<sup>−3</sup> Btu = 4.1868 J, and 1 kcal = 1 Cal, the unit used for food.",
+ p3b:"The <b>heat capacity</b> <i>C</i> of an object is the proportionality constant in <i>Q</i> = <i>C</i>Δ<i>T</i> = <i>C</i>(<i>T</i><sub>f</sub> − <i>T</i><sub>i</sub>), in J/K or cal/°C: how much heat it takes to change the temperature. A large <i>C</i> means a lot of heat is needed. If <i>T</i><sub>i</sub> &lt; <i>T</i><sub>f</sub>, then <i>Q</i> &gt; 0 (heat must be absorbed to warm up); if <i>T</i><sub>i</sub> &gt; <i>T</i><sub>f</sub>, then <i>Q</i> &lt; 0. Two objects made of the same material have heat capacities proportional to their masses, <i>C</i> = <i>cm</i>, where the <b>specific heat</b> <i>c</i> is the heat capacity per unit mass, in J/(kg·K) or cal/(g·°C): <i>Q</i> = <i>cm</i>Δ<i>T</i>. The specific heat of water is 1.00 cal/(g·K) by the very definition of the calorie, 4190 J/(kg·K), which is relatively large. Per mole (6.02 × 10<sup>23</sup> elementary units, Avogadro's number), the <b>molar specific heat</b> of solid elements is close to 25 J/(mol·K): lead 26.5, tungsten 24.8, silver 25.5, copper 24.5, aluminum 24.4. Below, the same power heats your chosen material and the same mass of water.",
+ mat3:"Material",P3:"Heater power <i>P</i> (negative: cooling)",qin3:"Q > 0: heat flows into both",qout3:"Q < 0: heat flows out of both",
+ rc3:"Specific heat <i>c</i>",rC3:"Heat capacity <i>C</i> = <i>cm</i>",rQ3:"Heat so far <i>Q</i> = <i>Pt</i>",rT3:"Temperature of the material",rTw3:"Temperature of the water",rR3:"Δ<i>T</i> material / Δ<i>T</i> water",
+
+ h4:"Heats of transformation",
+ p4a:"Matter exists in three common states or phases: solid, liquid and gas. A change of temperature can transform it from one to another (a <b>phase transformation</b>, or phase transition). Heating a solid melts it into a liquid; heating a liquid vaporizes it into a gas; cooling a liquid freezes it into a solid; cooling a gas condenses it into a liquid. While the phase is changing, <b>all</b> the heat goes into the change of phase, and the temperature does not change.",
+ p4b:"The heat needed to completely change the phase of a mass <i>m</i> is <i>Q</i> = <i>Lm</i>, where <i>L</i> is the <b>heat of transformation</b> (latent heat), in J/kg or cal/g. For water at its boiling (condensation) point, 100 °C, the heat of vaporization is <i>L</i><sub>V</sub> = 539 cal/g = 40.7 kJ/mol = 2256 kJ/kg; at its melting (freezing) point the heat of fusion is <i>L</i><sub>F</sub> = 79.5 cal/g = 6.01 kJ/mol = 333 kJ/kg. Below, ice at −20 °C is heated at constant power until it is steam at 120 °C (specific heats used: ice 2220, water 4187, steam about 2010 J/(kg·K)). The flat stretches of the curve are the phase changes.",
+ P4:"Heater power <i>P</i>",g4:"T versus Q",speed4:"faster than real time",ph_ice:"ice warming",ph_melt:"melting at 0 °C",ph_water:"water warming",ph_boil:"boiling at 100 °C",ph_steam:"steam warming",
+ rPh4:"Now",rT4:"Temperature",rQ4:"Heat added <i>Q</i>",rF4:"To melt all of it, <i>L</i><sub>F</sub><i>m</i>",rV4:"To boil all of it, <i>L</i><sub>V</sub><i>m</i>",
+
+ h5:"Work done by a gas",
+ p5a:"Energy can be transferred as heat and as work. Example: a gas confined to a cylinder with a movable piston (the <b>system</b>). Lead shot on the piston sets the force on it, and the cylinder stands on a <b>thermal reservoir</b> whose temperature is set by a control knob, which controls the heat transfer. The gas starts in an initial state <i>i</i> (pressure <i>p</i><sub>i</sub>, volume <i>V</i><sub>i</sub>, temperature <i>T</i><sub>i</sub>) and goes through a <b>thermodynamic process</b> to a final state <i>f</i> (<i>p</i><sub>f</sub>, <i>V</i><sub>f</sub>, <i>T</i><sub>f</sub>). Along the way heat may flow from the reservoir into the system (<i>Q</i> &gt; 0) or out of it (<i>Q</i> &lt; 0), and the system does work to raise the piston (<i>W</i> &gt; 0) or to lower it (<i>W</i> &lt; 0). We assume all changes happen so slowly that the system is always (nearly) in thermal equilibrium: a <b>quasi-static process</b>.",
+ p5b:"Remove a few lead shot and the gas pushes the piston up with a force <b>F</b> through a small displacement d<b>s</b> (small enough that the force is constant). Its size is <i>F</i> = <i>pA</i>, with <i>A</i> the area of the piston, and <b>F</b> and d<b>s</b> point the same way, so the small work is d<i>W</i> = <b>F</b> · d<b>s</b> = (<i>pA</i>)(d<i>s</i>) = <i>p</i>(<i>A</i> d<i>s</i>) = <i>p</i> d<i>V</i>, where d<i>V</i> is the change in the gas volume. Repeating this from <i>V</i><sub>i</sub> to <i>V</i><sub>f</sub>, the total work done by the gas is <i>W</i> = ∫<i>p</i> d<i>V</i>: as an integral, it is the <b>area under the curve</b> <i>p</i>(<i>V</i>). The same endpoints can be joined by different paths, and the work is different for each. Going clockwise around a cycle, the positive work on the way out exceeds the negative work on the way back: the difference is the net work, the core idea of a heat engine (a thermodynamic cycle).",
+ pt5:"Path from <i>i</i> to <i>f</i>",pa5:"(a) a curve",pb5:"(b) expand first",pc5:"(c) drop pressure first",pd5:"(d) via pressure p*",pe5:"(e) f → i",pf5:"(f) cycle",ps5:"Intermediate pressure <i>p</i>* for (d)",
+ rW5:"<i>W</i> = ∫<i>p</i> d<i>V</i> (1 kPa · L = 1 J)",rS5:"Meaning",
+
+ h6:"The first law of thermodynamics",
+ p6a:"While a system changes from an initial state to a final state, the work <i>W</i> and the heat <i>Q</i> depend on the thermodynamic process: they are <b>path dependent</b>. But <i>Q</i> − <i>W</i>, (heat transferred to the system) − (work done by the system), is the same for every process. It is an intrinsic property of the system, fixed once <i>p</i> and <i>V</i> are fixed: the change in <b>internal energy</b>, Δ<i>E</i><sub>int</sub> = <i>E</i><sub>int,f</sub> − <i>E</i><sub>int,i</sub> = <i>Q</i> − <i>W</i>, the <b>first law of thermodynamics</b>. Heat transferred to the system raises its internal energy (<i>Q</i> &gt; 0 raises it, <i>Q</i> &lt; 0 lowers it); work done by the system on its surroundings lowers it (<i>W</i> &gt; 0 lowers it, <i>W</i> &lt; 0 raises it). It is fundamentally the law of <b>energy conservation</b>. For small changes it takes the differential form d<i>E</i><sub>int</sub> = d<i>Q</i> − d<i>W</i>.",
+ p6b:"Note on signs: up to the previous chapter, <i>W</i> was the work done <b>on</b> a system. From now on it is the work done <b>by</b> the system, because we care about extracting work from a gas. With the work done on the system <i>W</i><sub>on</sub> = −<i>W</i>, the first law reads Δ<i>E</i><sub>int</sub> = <i>Q</i> + <i>W</i><sub>on</sub>. Below, 1 mol of a monatomic ideal gas goes from <i>i</i> (10 L, 300 K) to <i>f</i> along three different paths. <i>Q</i> and <i>W</i> change from path to path; <i>Q</i> − <i>W</i> does not.",
+ pt6:"Path",p6A:"A: constant V, then constant p",p6B:"B: constant p, then constant V",p6C:"C: constant T, then constant V",Vf6:"Final volume <i>V</i><sub>f</sub>",Tf6:"Final temperature <i>T</i><sub>f</sub>",
+
+ h7:"Special cases of the first law",
+ p7a:"(1) <b>Adiabatic process</b>: the process is so fast, or the insulation so good, that no heat is transferred: <i>Q</i> = 0, so Δ<i>E</i><sub>int</sub> = −<i>W</i>. If the system does work (<i>W</i> &gt; 0), its internal energy decreases; if work is done on it (<i>W</i> &lt; 0), its internal energy increases. The system spends its own internal energy to do work, because work is the only way energy can be transferred. (2) <b>Constant-volume process</b>: if the volume stays fixed (d<i>V</i> = 0), the system can do no work, so Δ<i>E</i><sub>int</sub> = <i>Q</i>: the heat absorbed becomes the change in internal energy (heat released, <i>Q</i> &lt; 0, lowers it; heat absorbed, <i>Q</i> &gt; 0, raises it). On the <i>p</i>–<i>V</i> graph the path is vertical and the area under it is 0.",
+ p7b:"(3) <b>Cyclical process</b>: after exchanging heat and work, the system returns to its initial state, so its intrinsic property, the internal energy, does not change: Δ<i>E</i><sub>int</sub> = 0 and <i>Q</i> = <i>W</i>. The heat added becomes the work done on the surroundings (<i>Q</i> &gt; 0, <i>W</i> &gt; 0), or the work received leaves as heat (<i>Q</i> &lt; 0, <i>W</i> &lt; 0); heat engines will treat this in detail. (4) <b>Free expansion</b>: no heat flows between the system and its surroundings, and the system does no work: <i>Q</i> = 0, <i>W</i> = 0, so Δ<i>E</i><sub>int</sub> = 0. Open the stopcock and the gas fills both chambers and finally reaches equilibrium. It happens quickly, not slowly, so unlike the processes above the intermediate states are not in equilibrium: on the <i>p</i>–<i>V</i> graph the initial and final states can be drawn, but the path in between cannot.",
+ md7:"Process",m7a:"Adiabatic",m7v:"Constant volume",m7c:"Cycle",m7f:"Free expansion",Vf7:"Final volume <i>V</i><sub>f</sub> (cycle: right edge)",Q7:"Heat <i>Q</i> (constant volume)",
+ k7a:"adiabatic",k7v:"constant volume",k7c:"cycle",k7f:"free expansion",noPath7:"no path: the states in between are not in equilibrium",open7:"stopcock open",closed7:"stopcock closed",rTf7:"Final temperature <i>T</i><sub>f</sub>",
+
+ h8:"Heat transfer: conduction, convection, radiation",
+ p8a:"<b>Conduction</b>: energy transferred mainly through solids, by the vibrations of atoms. Assume a steady transfer of energy as heat through a slab of thickness <i>L</i>, thermal conductivity <i>k</i>, and face area <i>A</i>, from a hot reservoir at <i>T</i><sub>H</sub> to a cold reservoir at <i>T</i><sub>C</sub>. The <b>conduction rate</b>, the energy transferred per unit time, is <i>P</i><sub>cond</sub> = <i>Q</i>/<i>t</i> = <i>kA</i>(<i>T</i><sub>H</sub> − <i>T</i><sub>C</sub>)/<i>L</i>: proportional to the temperature difference and the area, and inversely proportional to the thickness. The <b>thermal conductivity</b> <i>k</i> is a property of the material of the slab: how much heat per unit time flows for a given temperature difference. Defining the <b>thermal resistance</b> <i>R</i> = <i>L</i>/<i>k</i> (“how strongly does it refuse to pass heat?”), <i>P</i><sub>cond</sub> = <i>A</i>(<i>T</i><sub>H</sub> − <i>T</i><sub>C</sub>)/<i>R</i>.",
+ p8b:"<b>Convection</b>: think of a candle or a gas flame. A fluid such as air or water expands when its temperature rises, becomes less dense, and is pushed up by buoyancy; the cooler fluid around it fills the empty space, and the process repeats. Convection in the atmosphere drives the global climate and daily weather. <b>Radiation</b>: transfer by electromagnetic waves (like visible light), called <b>thermal radiation</b>. It needs no medium and works even through a vacuum, which is how heat travels from the Sun to the Earth. An object emits energy by electromagnetic radiation at the rate <i>P</i><sub>rad</sub> = <i>σεAT</i><sup>4</sup> (<b>Stefan–Boltzmann law</b>), where <i>σ</i> = 5.6704 × 10<sup>−8</sup> W/(m<sup>2</sup>·K<sup>4</sup>) is the Stefan–Boltzmann constant, <i>ε</i> is the emissivity of the surface (0 ≤ <i>ε</i> ≤ 1), <i>A</i> is the surface area, and <i>T</i> is the absolute temperature in kelvins.",
+ md8:"Mechanism",m8c:"Conduction",m8r:"Radiation",mat8:"Slab material",TH8:"Hot side <i>T</i><sub>H</sub>",TC8:"Cold side <i>T</i><sub>C</sub>",L8:"Thickness <i>L</i>",Tr8:"Body temperature <i>T</i>",eps8:"Emissivity <i>ε</i>",A8:"Area <i>A</i>",
+ ir8:"mostly infrared: invisible, but still radiating",vis8:"hot enough to glow visibly",rP8:"Power <i>P</i>",rR8:"Thermal resistance <i>R</i> = <i>L</i>/<i>k</i>",rE8:"Energy in one minute",
+
+ h9:"The ideal gas",
+ p9a:"The <b>kinetic theory of gases</b> connects the individual motion of atoms (microscopic properties) with the volume, pressure and temperature of the gas (macroscopic properties). <b>Avogadro's number</b>: 1 mol is the number of atoms in 12 g of carbon-12, <i>N</i><sub>A</sub> = 6.02 × 10<sup>23</sup> mol<sup>−1</sup> (“per mole”). The number of moles in a sample is <i>n</i> = <i>N</i>/<i>N</i><sub>A</sub> (<i>N</i>: number of molecules) = <i>M</i><sub>sam</sub>/<i>M</i> = <i>M</i><sub>sam</sub>/(<i>mN</i><sub>A</sub>), where <i>M</i><sub>sam</sub> is the mass of the sample, <i>m</i> is the mass of one molecule, and the molar mass is <i>M</i> = <i>mN</i><sub>A</sub>.",
+ p9b:"Which gas? Put 1 mol of different gases in boxes of the same volume at the same temperature, and the measured pressures turn out nearly the same: a universal property, <b>universality</b>. At low enough densities all gases obey the <b>ideal gas law</b> <i>pV</i> = <i>nRT</i>, with <i>T</i> the absolute temperature and <i>R</i> = 8.31 J/(mol·K) the gas constant. For a given number of moles: at constant temperature <i>p</i> ∝ 1/<i>V</i> (<b>Boyle's law</b>); at constant pressure <i>V</i> ∝ <i>T</i> (<b>Charles's law</b>); at constant volume <i>p</i> ∝ <i>T</i> (<b>Gay-Lussac's law</b>). With the <b>Boltzmann constant</b> <i>k</i> = <i>R</i>/<i>N</i><sub>A</sub> = 1.38 × 10<sup>−23</sup> J/K, <i>R</i> = <i>kN</i><sub>A</sub> and <i>nR</i> = <i>knN</i><sub>A</sub> = <i>kN</i>, so <i>pV</i> = <i>NkT</i>. All real gases approach the ideal state at low enough density, when the molecules are far enough apart that they do not interact. Choose what to hold constant and watch the state move on the <i>p</i>–<i>V</i> graph.",
+ hold9:"Hold constant",hT:"T (Boyle)",hP:"p (Charles)",hV:"V (Gay-Lussac)",n9:"Amount <i>n</i>",V9:"Volume <i>V</i>",T9:"Temperature <i>T</i>",
+ rp9:"Pressure <i>p</i> = <i>nRT</i>/<i>V</i>",rN9:"Molecules <i>N</i> = <i>nN</i><sub>A</sub>",rpV9:"<i>pV</i>",rnRT9:"<i>nRT</i> = <i>NkT</i>",
+
+ h10:"Work done by an ideal gas",
+ p10:"Put an ideal gas in the cylinder and keep its temperature <i>T</i> constant while it expands from <i>V</i><sub>i</sub> to <i>V</i><sub>f</sub>: <b>isothermal expansion</b> (or, the other way, isothermal compression). At constant <i>T</i>, <i>pV</i> = <i>nRT</i> gives <i>p</i> = <i>nRT</i>/<i>V</i> ∝ 1/<i>V</i>, so the work is the area under this curve: <i>W</i> = ∫<i>p</i> d<i>V</i> = ∫(<i>nRT</i>/<i>V</i>) d<i>V</i> = <i>nRT</i>∫d<i>V</i>/<i>V</i> (<i>n</i> and <i>R</i> are constants and <i>T</i> is fixed) = <i>nRT</i>(ln <i>V</i><sub>f</sub> − ln <i>V</i><sub>i</sub>) = <i>nRT</i> ln(<i>V</i><sub>f</sub>/<i>V</i><sub>i</sub>). For expansion, <i>V</i><sub>i</sub> &lt; <i>V</i><sub>f</sub> and ln(<i>V</i><sub>f</sub>/<i>V</i><sub>i</sub>) &gt; ln 1 = 0, so <i>W</i> &gt; 0 (the gas does work); for compression <i>W</i> &lt; 0 (work is done on the gas). If the temperature changes during the process, <i>T</i> cannot be taken out of the integral and the result is not ln(<i>V</i><sub>f</sub>/<i>V</i><sub>i</sub>)! If the volume is constant, <i>W</i> = 0, as we saw. If the volume changes but the pressure is constant, <i>W</i> = <i>p</i>(<i>V</i><sub>f</sub> − <i>V</i><sub>i</sub>) = <i>p</i>Δ<i>V</i>, the area of a rectangle. The simulation uses 1 mol and also adds up the area numerically.",
+ pr10:"Process",p10T:"Constant T",p10p:"Constant p",p10V:"Constant V",T10:"Temperature <i>T</i> (constant V: heated to 1.5<i>T</i>)",Vi10:"Initial volume <i>V</i><sub>i</sub>",Vf10:"Final volume <i>V</i><sub>f</sub>",
+ rWf10:"<i>W</i> from the formula",rWn10:"<i>W</i> = ∫<i>p</i> d<i>V</i>, added up numerically",rS10:"Meaning",s10n:"<i>W</i> &lt; 0: work is done on the gas",s10z:"<i>W</i> = 0: no volume change",
+
+ h11:"Pressure, temperature, and RMS speed",
+ p11a:"Now relate the kinetics of the molecules to the thermodynamic variables. <i>n</i> moles of an ideal gas are in a cubical box with edge <i>L</i>. The molecules move in all directions with various speeds and bounce off the walls like billiard balls; in an ideal gas they do not interact, so they do not hit each other. Assume the collisions with a wall are elastic (kinetic energy is conserved) and the wall is infinitely more massive than a molecule (mass <i>m</i>): <i>v</i><sub>x</sub> becomes −<i>v</i><sub>x</sub>, so the molecule's momentum along <i>x</i> changes by Δ<i>p</i><sub>x</sub> = (−<i>mv</i><sub>x</sub>) − <i>mv</i><sub>x</sub> = −2<i>mv</i><sub>x</sub>. Treating molecule + wall as one system, momentum must be conserved, so the wall receives 2<i>mv</i><sub>x</sub>. The molecule hits that wall again after Δ<i>t</i> = 2<i>L</i>/<i>v</i><sub>x</sub> (there and back), so the average momentum delivered per unit time is Δ<i>p</i><sub>x</sub>/Δ<i>t</i> = 2<i>mv</i><sub>x</sub>/(2<i>L</i>/<i>v</i><sub>x</sub>) = <i>mv</i><span class='ss'><sup>2</sup><sub>x</sub></span>/<i>L</i>, a force on the wall (<b>F</b> = d<b>p</b>/d<i>t</i>).",
+ p11b:"Adding all the molecules, the pressure is <i>p</i> = <i>F</i><sub>x</sub>/<i>L</i><sup>2</sup> = (<i>m</i>/<i>L</i><sup>3</sup>)(<i>v</i><span class='ss'><sup>2</sup><sub>x1</sub></span> + ⋯ + <i>v</i><span class='ss'><sup>2</sup><sub>xN</sub></span>) = (<i>mN</i>/<i>L</i><sup>3</sup>)(<i>v</i><span class='ss'><sup>2</sup><sub>x</sub></span>)<sub>avg</sub>. With <i>N</i> = <i>nN</i><sub>A</sub> and <i>M</i> = <i>mN</i><sub>A</sub>, <i>p</i> = <i>nM</i>(<i>v</i><span class='ss'><sup>2</sup><sub>x</sub></span>)<sub>avg</sub>/<i>V</i>. Since <i>v</i><sup>2</sup> = <i>v</i><span class='ss'><sup>2</sup><sub>x</sub></span> + <i>v</i><span class='ss'><sup>2</sup><sub>y</sub></span> + <i>v</i><span class='ss'><sup>2</sup><sub>z</sub></span> and no direction is preferred, (<i>v</i><span class='ss'><sup>2</sup><sub>x</sub></span>)<sub>avg</sub> = (1/3)(<i>v</i><sup>2</sup>)<sub>avg</sub>, so <i>p</i> = <i>nM</i>(<i>v</i><sup>2</sup>)<sub>avg</sub>/(3<i>V</i>) = <i>nMv</i><span class='ss'><sup>2</sup><sub>rms</sub></span>/(3<i>V</i>). This is the spirit of kinetic theory: a macroscopic property, pressure, written with the speeds of the molecules. Here <i>v</i><sub>rms</sub> = √((<i>v</i><sup>2</sup>)<sub>avg</sub>) (root mean square), and with <i>pV</i> = <i>nRT</i>, <i>v</i><sub>rms</sub> = √(3<i>pV</i>/(<i>nM</i>)) = √(3<i>RT</i>/<i>M</i>), set by the temperature alone! It is fast: 1920 m/s for hydrogen, faster than a bullet. Then why do smells spread so slowly? Because the motion is random (and in a real gas the molecules collide); also <i>v</i><sub>rms</sub> is an average, and real molecules are both slower and faster. The simulation counts the impulses on the right wall and compares the measured pressure with <i>Nm</i>(<i>v</i><span class='ss'><sup>2</sup><sub>x</sub></span>)<sub>avg</sub>/<i>V</i> (in a flat, two-dimensional box).",
+ T11:"Temperature <i>T</i>",wall11:"wall",meas11:"measured",pres11:"Pressure on the right wall",rv11:"<i>v</i><sub>rms</sub> = <span class='sqrt'><span>3<i>RT</i>/<i>M</i></span></span>",rR11:"Measured / predicted pressure",rDt11:"Δ<i>t</i> = 2<i>L</i>/<i>v</i><sub>x</sub> for the red molecule",
+
+ h12:"Kinetic energy and the speed distribution",
+ p12a:"The average <b>translational kinetic energy</b> of the molecules (as opposed to rotation, vibration and so on) is <i>K</i><sub>avg</sub> = ((1/2)<i>mv</i><sup>2</sup>)<sub>avg</sub> = (1/2)<i>m</i>(<i>v</i><sup>2</sup>)<sub>avg</sub> = (1/2)<i>mv</i><span class='ss'><sup>2</sup><sub>rms</sub></span>. With <i>v</i><span class='ss'><sup>2</sup><sub>rms</sub></span> = 3<i>RT</i>/<i>M</i>, <i>K</i><sub>avg</sub> = 3<i>mRT</i>/(2<i>M</i>), and <i>M</i>/<i>m</i> = (mass of 1 mol)/(mass of one molecule) = <i>N</i><sub>A</sub>, so <i>K</i><sub>avg</sub> = 3<i>RT</i>/(2<i>N</i><sub>A</sub>) = (3/2)<i>kT</i>. At a given temperature <i>T</i>, the molecules of every ideal gas have the same average translational kinetic energy (3/2)<i>kT</i>, whatever their mass. In other words, <b>measuring the temperature of a gas is measuring the average translational kinetic energy of its molecules</b>.",
+ p12b:"<i>v</i><sub>rms</sub> is one kind of average; what distribution do the actual speeds <i>v</i> have? <b>Maxwell's speed distribution law</b>: <i>P</i>(<i>v</i>) = 4π(<i>M</i>/(2π<i>RT</i>))<sup>3/2</sup><i>v</i><sup>2</sup><i>e</i><sup>−<i>Mv</i><sup>2</sup>/(2<i>RT</i>)</sup>. As a probability distribution, ∫<span class='ss'><sup>∞</sup><sub>0</sub></span><i>P</i>(<i>v</i>) d<i>v</i> = 1 (the speed has to be <i>something</i>), and the fraction of molecules with speeds between <i>v</i><sub>1</sub> and <i>v</i><sub>2</sub> is ∫<span class='ss'><sup><i>v</i><sub>2</sub></sup><sub><i>v</i><sub>1</sub></sub></span><i>P</i>(<i>v</i>) d<i>v</i>. (1) The <b>average speed</b> (expectation value) is <i>v</i><sub>avg</sub> = ∫<i>vP</i>(<i>v</i>) d<i>v</i> = √(8<i>RT</i>/(π<i>M</i>)), using ∫<span class='ss'><sup>∞</sup><sub>0</sub></span><i>x</i><sup>2<i>n</i>+1</sup><i>e</i><sup>−<i>ax</i><sup>2</sup></sup>d<i>x</i> = <i>n</i>!/(2<i>a</i><sup><i>n</i>+1</sup>) with <i>n</i> = 1, <i>a</i> = <i>M</i>/(2<i>RT</i>). (2) The <b>mean of the squared speed</b> is (<i>v</i><sup>2</sup>)<sub>avg</sub> = ∫<i>v</i><sup>2</sup><i>P</i>(<i>v</i>) d<i>v</i> = 3<i>RT</i>/<i>M</i>, which is where <i>v</i><sub>rms</sub> = √(3<i>RT</i>/<i>M</i>) comes from. (3) The <b>most probable speed</b>, where the distribution is highest: d<i>P</i>/d<i>v</i> = 0 at <i>v</i><sub>p</sub> = √(2<i>RT</i>/<i>M</i>). So <i>v</i><sub>p</sub> &lt; <i>v</i><sub>avg</sub> &lt; <i>v</i><sub>rms</sub>. When the temperature changes, the shape changes: compare the dashed curve.",
+ T12:"Temperature <i>T</i> (solid curve)",T212:"Comparison temperature (dashed curve)",v112:"Speed <i>v</i><sub>1</sub>",v212:"Speed <i>v</i><sub>2</sub>",
+ rvp12:"Most probable <i>v</i><sub>p</sub>",rva12:"Average <i>v</i><sub>avg</sub>",rvr12:"RMS <i>v</i><sub>rms</sub>",rK12:"<i>K</i><sub>avg</sub> = (3/2)<i>kT</i> per molecule",rF12:"Fraction between <i>v</i><sub>1</sub> and <i>v</i><sub>2</sub>",
+
+ h13:"Internal energy and molar specific heats",
+ p13a:"Before, we used <i>pV</i> = <i>nRT</i> to compute the work done by a gas in various situations. Now we compute the internal energy <i>E</i><sub>int</sub> as the translational kinetic energy of the randomly moving molecules. For a gas of single atoms (He, Ne, Ar; molecules like O<sub>2</sub> or H<sub>2</sub> can also store other kinds of energy, which is more complicated), <i>E</i><sub>int</sub> = (number of atoms)<i>K</i><sub>avg</sub> = (<i>nN</i><sub>A</sub>)(3/2)<i>kT</i> = (3/2)<i>nRT</i>, using <i>k</i> = <i>R</i>/<i>N</i><sub>A</sub>. <b>The internal energy of a monatomic ideal gas, (3/2)<i>nRT</i>, depends only on the temperature</b>, not on any other variable. <b>Molar specific heat at constant volume</b>: pin the piston so the gas does no work; all the heat absorbed from the reservoir goes into the internal energy (first law, Δ<i>E</i><sub>int</sub> = <i>Q</i> − <i>W</i> with <i>W</i> = 0). As <i>T</i> → <i>T</i> + Δ<i>T</i> and <i>p</i> → <i>p</i> + Δ<i>p</i>, <i>Q</i> = Δ<i>E</i><sub>int</sub> = (3/2)<i>nR</i>Δ<i>T</i> = <i>nC</i><sub>V</sub>Δ<i>T</i>, so <i>C</i><sub>V</sub> = (3/2)<i>R</i> per mole. Even when <i>W</i> ≠ 0, <i>E</i><sub>int</sub> = (3/2)<i>nRT</i> = <i>nC</i><sub>V</sub><i>T</i>, so Δ<i>E</i><sub>int</sub> = <i>nC</i><sub>V</sub>Δ<i>T</i> for <b>any</b> process of an ideal gas: the change in internal energy of a confined ideal gas depends only on its change in temperature, not on the process. The paths differ but Δ<i>E</i><sub>int</sub> is the same; <i>Q</i> and <i>W</i> all differ!",
+ p13b:"<b>Molar specific heat at constant pressure</b>: the piston is free and keeps the pressure constant. Write the heat as <i>Q</i> = <i>nC</i><sub>p</sub>Δ<i>T</i>. With Δ<i>E</i><sub>int</sub> = <i>Q</i> − <i>W</i>, Δ<i>E</i><sub>int</sub> = <i>nC</i><sub>V</sub>Δ<i>T</i> and <i>W</i> = ∫<i>p</i> d<i>V</i> = <i>p</i>Δ<i>V</i> = <i>nR</i>Δ<i>T</i> (with <i>p</i> constant, only <i>V</i> and <i>T</i> can change in <i>pV</i> = <i>nRT</i>), <i>Q</i> = <i>nC</i><sub>V</sub>Δ<i>T</i> + <i>nR</i>Δ<i>T</i> = <i>n</i>(<i>C</i><sub>V</sub> + <i>R</i>)Δ<i>T</i>, so <i>C</i><sub>p</sub> = <i>C</i><sub>V</sub> + <i>R</i> = (5/2)<i>R</i>. Summary: give the gas the same heat <i>Q</i>. At constant volume, all of it raises the internal energy: Δ<i>T</i> = 2<i>Q</i>/(3<i>nR</i>). At constant pressure, 3/5 of it raises the internal energy and 2/5 goes into the work the gas does: Δ<i>T</i> = 2<i>Q</i>/(5<i>nR</i>), a smaller temperature change. Below, 1 mol at 300 K receives the same heat in both cylinders.",
+ Q13:"Heat added <i>Q</i>",pin13:"pinned",cV13:"constant volume",cP13:"constant pressure",b13v:"Constant V: Δ<i>E</i><sub>int</sub>",b13p:"Constant p: Δ<i>E</i><sub>int</sub>",b13w:"Constant p: work <i>W</i> = <i>p</i>Δ<i>V</i>",
+ rCv13:"<i>C</i><sub>V</sub>",rCp13:"<i>C</i><sub>p</sub> = <i>C</i><sub>V</sub> + <i>R</i>",rTv13:"Δ<i>T</i> at constant volume",rTp13:"Δ<i>T</i> at constant pressure",rW13:"Work at constant pressure, <i>nR</i>Δ<i>T</i>",rG13:"<i>γ</i> = <i>C</i><sub>p</sub>/<i>C</i><sub>V</sub>",
+
+ h14:"Degrees of freedom",
+ p14a:"<b>Maxwell's theorem of the equipartition of energy</b>: every kind of molecule has a certain number <i>f</i> of <b>degrees of freedom</b>, which are independent ways in which it can store energy. Each degree of freedom has on average an energy of (1/2)<i>kT</i> per molecule (or (1/2)<i>RT</i> per mole). A monatomic molecule can only have translational kinetic energy (no rotation, no vibration): translation along <i>x</i>, <i>y</i> and <i>z</i> gives (1/2)<i>kT</i> each, (3/2)<i>kT</i> in total. A diatomic molecule can translate, rotate (about 2 axes) and vibrate (2 atoms).",
+ p14b:"The graph shows <i>C</i><sub>V</sub>/<i>R</i> of a diatomic gas such as hydrogen. At low temperature it is the 3/2 we found above. As the temperature rises, the molar specific heat goes up in steps, as the degrees of freedom are “unlocked” one kind at a time: each kind needs a minimum energy before it can take part, which can only be explained by <b>quantum theory</b>. In general <i>C</i><sub>V</sub> = (<i>f</i>/2)<i>R</i>, <i>C</i><sub>p</sub> = <i>C</i><sub>V</sub> + <i>R</i>, and <i>γ</i> = <i>C</i><sub>p</sub>/<i>C</i><sub>V</sub> (5/3 for a monatomic gas, 7/5 for a diatomic gas at room temperature). The curve's step positions are schematic.",
+ mol14:"Molecule",lT14:"Temperature <i>T</i>",k14:"each degree of freedom:",tra14:"translation (3)",rot14:"rotation (2)",vib14:"vibration (2)",
+ rCv14:"<i>C</i><sub>V</sub>",rF14:"Active degrees of freedom <i>f</i> = 2<i>C</i><sub>V</sub>/<i>R</i>",rCp14:"<i>C</i><sub>p</sub>",rG14:"<i>γ</i> = <i>C</i><sub>p</sub>/<i>C</i><sub>V</sub>",
+
+ h15:"Adiabatic expansion of an ideal gas",
+ p15a:"No heat is transferred (<i>Q</i> = 0): the gas is well insulated, or the process is so fast that heat has no time to flow. Slowly remove lead shot so that the gas expands without any heat transfer. With <i>Q</i> = 0, Δ<i>E</i><sub>int</sub> = −<i>W</i>; for a small change d<i>E</i><sub>int</sub> = −<i>p</i> d<i>V</i>, and d<i>E</i><sub>int</sub> = <i>nC</i><sub>V</sub>d<i>T</i>, so <i>n</i> d<i>T</i> = −(<i>p</i>/<i>C</i><sub>V</sub>)d<i>V</i>. From <i>pV</i> = <i>nRT</i>, by the product rule (<i>xy</i>)′ = <i>x</i>′<i>y</i> + <i>xy</i>′, <i>p</i> d<i>V</i> + <i>V</i> d<i>p</i> = <i>nR</i> d<i>T</i>, so <i>n</i> d<i>T</i> = (<i>p</i> d<i>V</i> + <i>V</i> d<i>p</i>)/(<i>C</i><sub>p</sub> − <i>C</i><sub>V</sub>), since <i>R</i> = <i>C</i><sub>p</sub> − <i>C</i><sub>V</sub>. Setting the two equal and simplifying gives <i>V</i> d<i>p</i> + (<i>C</i><sub>p</sub>/<i>C</i><sub>V</sub>)<i>p</i> d<i>V</i> = 0, i.e. d<i>p</i>/<i>p</i> + <i>γ</i> d<i>V</i>/<i>V</i> = 0 with <i>γ</i> = <i>C</i><sub>p</sub>/<i>C</i><sub>V</sub> (5/3 for a monatomic ideal gas). Integrating, ln <i>p</i> + <i>γ</i> ln <i>V</i> = constant, so ln(<i>pV</i><sup><i>γ</i></sup>) = constant: <b><i>pV</i><sup><i>γ</i></sup> = constant</b> (adiabatic process).",
+ p15b:"If the gas goes from <i>i</i> to <i>f</i>, <i>p</i><sub>i</sub><i>V</i><span class='ss'><sup><i>γ</i></sup><sub>i</sub></span> = <i>p</i><sub>f</sub><i>V</i><span class='ss'><sup><i>γ</i></sup><sub>f</sub></span>. For a monatomic ideal gas <i>p</i> ∝ 1/<i>V</i><sup>5/3</sup>, which falls more steeply than an isotherm, <i>p</i> ∝ 1/<i>V</i>. With <i>pV</i> = <i>nRT</i>, <i>pV</i><sup><i>γ</i></sup> = <i>pV</i> · <i>V</i><sup><i>γ</i>−1</sup> = <i>nRT</i> · <i>V</i><sup><i>γ</i>−1</sup>, so <b><i>TV</i><sup><i>γ</i>−1</sup> = constant</b> as well. Compare <b>free expansion</b>: it is also adiabatic, but <i>Q</i> = 0 and <i>W</i> = 0, so Δ<i>E</i><sub>int</sub> = 0 and Δ<i>T</i> = 0. The intermediate states are not in equilibrium and cannot be drawn. Since <i>i</i> and <i>f</i> have the same temperature, <i>p</i><sub>i</sub><i>V</i><sub>i</sub> = <i>p</i><sub>f</sub><i>V</i><sub>f</sub> and <i>T</i><sub>i</sub> = <i>T</i><sub>f</sub>, unlike the adiabatic process with <i>pV</i><sup><i>γ</i></sup> and <i>TV</i><sup><i>γ</i>−1</sup> constant! The initial and final states are those of an isothermal process, which is what we will use to compute the entropy change in the next chapter.",
+ fr15:"Free expansion instead",Ti15:"Initial temperature <i>T</i><sub>i</sub>",Vf15:"Final volume <i>V</i><sub>f</sub>",ladia15:"adiabat: pVᵞ = const",lfree15:"free expansion: only i and f",liso15:"dashed: isotherm through i, p ∝ 1/V",
+ rPf15:"Final pressure <i>p</i><sub>f</sub>",rTf15:"Final temperature <i>T</i><sub>f</sub>",rC15:"<i>pV</i><sup><i>γ</i></sup> at <i>i</i> → <i>f</i>"
+}
+
+};
+
+const lang="en";const L=I18N[lang];const t=k=>(L[k]??k);
+const $=s=>document.querySelector(s);const NS="http://www.w3.org/2000/svg";
+function E(tag,attrs={},parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e}
+function H(tag,attrs={},parent,html){const e=document.createElement(tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(html!=null)e.innerHTML=html;if(parent)parent.appendChild(e);return e}
+const reduceMotion=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const MU0=4*Math.PI*1e-7,EC=1.602e-19;
+const minus=s=>String(s).replace(/-/g,"−");
+function trimP(x,sig){let s=x.toPrecision(sig);if(s.includes("e"))s=String(+s);return s}
+function si(x,unit,sig=3){if(!isFinite(x))return"∞ "+unit;if(Math.abs(x)<1e-30)return"0 "+unit;
+  const P=[[1e9,"G"],[1e6,"M"],[1e3,"k"],[1,""],[1e-3,"m"],[1e-6,"μ"],[1e-9,"n"],[1e-12,"p"],[1e-15,"f"]];const a=Math.abs(x);
+  for(const[f,p]of P){if(a>=f*0.99995)return minus(trimP(x/f,sig))+" "+p+unit}return minus(sci(x))+" "+unit}
+const SUPS={"-":"⁻","0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹"};
+function sci(x,sig=3){if(!isFinite(x))return"∞";if(x===0)return"0";const a=Math.abs(x);if(a>=1e-2&&a<1e4)return minus(trimP(x,sig));
+  let e=Math.floor(Math.log10(a));let m=+(x/10**e).toPrecision(sig);if(Math.abs(m)>=10){m=+(m/10).toPrecision(sig);e++}
+  return minus(String(m))+"×10"+String(e).split("").map(c=>SUPS[c]).join("")}
+const fx=(x,d=2)=>minus((Math.abs(x)<0.5*10**-d?0:x).toFixed(d));
+const S={};
+function slider(box,{id,key,min,max,step,value,fmt,on}){const d=H("div",{class:"ctl"},box);const l=H("label",{for:id},d);H("span",{"data-i18n":key},l);const o=H("output",{},l);
+  const inp=H("input",{type:"range",id,min,max,step,value},d);const upd=()=>{S[id]=+inp.value;o.textContent=fmt(S[id])};inp.addEventListener("input",()=>{upd();on()});upd();return inp}
+function seg(box,{id,key,options,value,on}){const d=H("div",{class:"ctl"},box);H("span",{class:"lbl","data-i18n":key},d);const g=H("div",{class:"seg",role:"group"},d);S[id]=value;
+  options.forEach(([v,k])=>{const b=H("button",{type:"button","data-i18n":k,"aria-pressed":String(v===value)},g);b.addEventListener("click",()=>{S[id]=v;g.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));on()})})}
+function check(box,{id,key,value,on}){const lab=H("label",{class:"check"},box);const cb=H("input",{type:"checkbox",id},lab);cb.checked=value;S[id]=value;H("span",{"data-i18n":key},lab);cb.addEventListener("change",()=>{S[id]=cb.checked;on()})}
+function button(box,key,fn){const b=H("button",{type:"button",class:"btn","data-i18n":key},box);b.addEventListener("click",fn);return b}
+function readout(box,rows){const dl=H("dl",{class:"read"},box);const out={};rows.forEach(([id,key])=>{H("dt",{"data-i18n":key},dl);out[id]=H("dd",{},dl)});return out}
+function txt(g,x,y,s,a={}){const e=E("text",Object.assign({x,y,"font-size":14},a),g);s=String(s);
+  if(!s.includes("_")){e.textContent=s;return e}const parts=s.split(/_([A-Za-z0-9]+)/);let shifted=false;
+  parts.forEach((p,k)=>{if(!p)return;const sub=k%2===1;const ts=E("tspan",{},e);if(sub){ts.setAttribute("dy","4");ts.setAttribute("font-size","0.72em");shifted=true}else if(shifted){ts.setAttribute("dy","-4");shifted=false}ts.textContent=p});return e}
+function arrow(g,x1,y1,x2,y2,col,w=2.5,hd=9){const dx=x2-x1,dy=y2-y1,Ln=Math.hypot(dx,dy);if(Ln<2)return;const ux=dx/Ln,uy=dy/Ln;const h=Math.min(hd,Ln*0.6);const bx=x2-ux*h,by=y2-uy*h;
+  E("line",{x1,y1,x2:bx,y2:by,stroke:col,"stroke-width":w,"stroke-linecap":"round"},g);E("polygon",{points:`${x2},${y2} ${bx-uy*h*.55},${by+ux*h*.55} ${bx+uy*h*.55},${by-ux*h*.55}`,fill:col},g)}
+function dotOut(g,x,y,r,col){E("circle",{cx:x,cy:y,r,fill:"var(--panel)",stroke:col,"stroke-width":2},g);E("circle",{cx:x,cy:y,r:Math.max(1.6,r*.28),fill:col},g)}
+function crossIn(g,x,y,r,col){E("circle",{cx:x,cy:y,r,fill:"var(--panel)",stroke:col,"stroke-width":2},g);const s=r*.6;E("path",{d:`M${x-s},${y-s}L${x+s},${y+s}M${x-s},${y+s}L${x+s},${y-s}`,stroke:col,"stroke-width":2},g)}
+function xMark(g,x,y,s,col,op=1){E("path",{d:`M${x-s},${y-s}L${x+s},${y+s}M${x-s},${y+s}L${x+s},${y-s}`,stroke:col,"stroke-width":1.8,opacity:op},g)}
+function dMark(g,x,y,r,col,op=1){E("circle",{cx:x,cy:y,r,fill:col,opacity:op},g)}
+function graph(g,{l=60,r=420,t0=24,b=130,xmin,xmax,ymin,ymax,xt,yt,xl,yl}){const X=v=>l+(v-xmin)/(xmax-xmin)*(r-l),Y=v=>b-(v-ymin)/(ymax-ymin)*(b-t0);
+  xt.forEach(([v,s])=>{E("line",{x1:X(v),x2:X(v),y1:t0,y2:b,class:"gridl"},g);txt(g,X(v),b+15,s,{"text-anchor":"middle","font-size":11,fill:"var(--muted)"})});
+  yt.forEach(([v,s])=>{E("line",{x1:l,x2:r,y1:Y(v),y2:Y(v),class:"gridl"},g);txt(g,l-6,Y(v)+4,s,{"text-anchor":"end","font-size":11,fill:"var(--muted)"})});
+  E("line",{x1:l,x2:r,y1:Y(Math.max(ymin,Math.min(ymax,0))),y2:Y(Math.max(ymin,Math.min(ymax,0))),class:"axis"},g);E("line",{x1:l,x2:l,y1:t0,y2:b,class:"axis"},g);
+  if(xl)txt(g,(l+r)/2,b+30,xl,{"text-anchor":"middle","font-size":12,fill:"var(--muted)"});if(yl)txt(g,l,t0-9,yl,{"font-size":12,fill:"var(--muted)"});return{X,Y}}
+const deg=x=>x*Math.PI/180;
+const anims=[];
+let NOW=0;const G0=9.8;
+function setSlider(el,v){el.value=v;el.dispatchEvent(new Event("input"))}
+function bars(el,rows,max){el.innerHTML=rows.map(([k,v,cl,unit])=>`<div class="bar-row"><span class="bar-cap">${t(k)}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.max(0,Math.min(100,Math.abs(v)/(max||1)*100))}%;background:${cl}"></div></div><span class="v">${unit(v)}</span></div>`).join("")}
+function block(g,x,y,w,h,col,label){E("rect",{x,y,width:w,height:h,rx:4,fill:col,opacity:.85,stroke:"var(--ink)","stroke-width":1.2},g);if(label)txt(g,x+w/2,y+h/2+5,label,{"text-anchor":"middle","font-weight":700,fill:"#fff"})}
+function farrow(g,x,y,dx,dy,col,label,lx=6,ly=-6){if(Math.hypot(dx,dy)<2)return;arrow(g,x,y,x+dx,y+dy,col,3,10);if(label)txt(g,x+dx+lx,y+dy+ly,label,{"font-size":13,"font-weight":700,fill:col,stroke:"var(--panel)","stroke-width":4,"stroke-linejoin":"round","paint-order":"stroke"})}
+function playBtn(c,obj,key="playing"){const b=H("button",{type:"button",class:"btn"},c);const upd=()=>b.innerHTML=t(obj[key]?"pause":"play");b.addEventListener("click",()=>{obj[key]=!obj[key];upd()});obj._btn=upd;return b}
+const N=x=>fx(x,2)+" N";
+
+(function(){const toc=$("#toc");L.nav.forEach((n,k)=>{const a=H("a",{href:"#s"+(k+1)},toc);a.innerHTML=`<span>${k+1}</span>${n}`})})();
+function coil(g,x0,x1,y,col="var(--magenta)",n=10,R=11){const lead=8,a=x0+lead,b=x1-lead,L=Math.max(4,b-a);const N=n*24,tilt=Math.min(0.42*R,0.45*L/n);
+  const pt=k=>{const t=2*Math.PI*n*k/N;return[a+L*k/N+tilt*Math.sin(t),y-R*Math.cos(t),Math.sin(t)]};
+  const segs=[[],[]];let prev=pt(0);for(let k=1;k<=N;k++){const p=pt(k);segs[(prev[2]+p[2])/2>=0?1:0].push(`M${prev[0].toFixed(1)},${prev[1].toFixed(1)}L${p[0].toFixed(1)},${p[1].toFixed(1)}`);prev=p}
+  const s=pt(0),e=pt(N);E("path",{d:`M${x0},${y}L${s[0].toFixed(1)},${s[1].toFixed(1)}M${e[0].toFixed(1)},${e[1].toFixed(1)}L${x1},${y}`,fill:"none",stroke:col,"stroke-width":2.2,"stroke-linecap":"round"},g);
+  E("path",{d:segs[0].join(""),fill:"none",stroke:col,"stroke-width":1.6,opacity:.45,"stroke-linecap":"round"},g);
+  E("path",{d:segs[1].join(""),fill:"none",stroke:col,"stroke-width":2.6,"stroke-linecap":"round"},g)}
+
+const tr=k=>(L[k]??k);
+/* ---------- shared helpers for this page ---------- */
+const noop=()=>{};
+const Jx=x=>{const a=Math.abs(x);return a>=1000?fx(x,0)+" J":a>=10?fx(x,1)+" J":(a>=0.01||x===0)?fx(x,3)+" J":si(x,"J")};
+const rads=x=>fx(x,2)+" rad/s",secs=x=>fx(x,2)+" s",mtr=x=>fx(x,2)+" m";
+function transport(c,o,onReset){const br=H("div",{class:"btnrow"},c);playBtn(br,o);o._btn();button(br,"reset",()=>{o.t=0;if(onReset)onReset()});return br}
+function clock(o,dt){if(o.playing)o.t+=dt}
+function win(t,W){const a=Math.max(0,t-W);return[a,a+W]}
+function tTicks(a,b){const r=[];const s=Math.ceil(a-1e-9),e=Math.floor(b+1e-9);for(let k=s;k<=e;k++)r.push([k,String(k)+(k===e?" s":"")]);return r}
+function plot(g,G,f,a,b,col,w=2.5,n=300,ex={}){if(b<=a)return;let d="";for(let k=0;k<=n;k++){const x=a+(b-a)*k/n;d+=(k?"L":"M")+G.X(x).toFixed(1)+","+G.Y(f(x)).toFixed(1)}return E("path",Object.assign({d,fill:"none",stroke:col,"stroke-width":w,"stroke-linejoin":"round"},ex),g)}
+function vcoil(g,cx,y0,y1,col="var(--magenta)",n=9,R=10){const gg=E("g",{transform:`translate(${cx},0) rotate(90)`},g);coil(gg,y0,y1,0,col,n,R)}
+function rk4(s,f,h){const k1=f(s),a=s.map((v,i)=>v+h/2*k1[i]),k2=f(a),b=s.map((v,i)=>v+h/2*k2[i]),k3=f(b),c=s.map((v,i)=>v+h*k3[i]),k4=f(c);return s.map((v,i)=>v+h/6*(k1[i]+2*k2[i]+2*k3[i]+k4[i]))}
+function stepN(s,f,dt,hmax=0.004){const n=Math.max(1,Math.ceil(dt/hmax));for(let i=0;i<n;i++)s=rk4(s,f,dt/n);return s}
+function lbl(g,x,y,s,col,a={}){return txt(g,x,y,s,Object.assign({"font-size":12,fill:col||"var(--muted)",stroke:"var(--panel)","stroke-width":4,"stroke-linejoin":"round","paint-order":"stroke"},a))}
+function dbl(g,x1,y1,x2,y2,col){const mx=(x1+x2)/2,my=(y1+y2)/2;arrow(g,mx,my,x1,y1,col,2,7);arrow(g,mx,my,x2,y2,col,2,7)}
+/* sound: sine tones started only by a button press */
+function Tone(){let ctx=null,g=null,os=[];return{on:false,
+  start(fs){try{ctx=ctx||new(window.AudioContext||window.webkitAudioContext)();if(ctx.resume)ctx.resume();g=ctx.createGain();const t0=ctx.currentTime;g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(0.14/fs.length,t0+0.06);g.connect(ctx.destination);
+    os=fs.map(f=>{const o=ctx.createOscillator();o.type="sine";o.frequency.value=Math.max(20,Math.min(4000,f));o.connect(g);o.start();return o});this.on=true}catch(e){this.on=false}},
+  set(fs){if(!this.on)return;os.forEach((o,i)=>o.frequency.setTargetAtTime(Math.max(20,Math.min(4000,fs[i])),ctx.currentTime,0.02))},
+  stop(){if(!this.on)return;g.gain.setTargetAtTime(0,ctx.currentTime,0.03);const o2=os,g2=g;setTimeout(()=>{o2.forEach(o=>{try{o.stop()}catch(e){}});g2.disconnect()},250);os=[];this.on=false}}}
+function _unusedSoundBtn(c,tone,getF){const b=H("button",{type:"button",class:"btn"},c);const upd=()=>b.innerHTML=tr(tone.on?"sndOff":"snd");b.addEventListener("click",()=>{tone.on?tone.stop():tone.start(getF());upd()});upd();return b}
+const PL=()=>!reduceMotion;
+
+
+const R_=8.314,KB=1.381e-23,NA_=6.022e23,SIG=5.670e-8;
+function sel(box,{id,key,options,value,on}){const d=H("div",{class:"ctl"},box);const l=H("label",{for:id,class:"lbl"},d);H("span",{"data-i18n":key},l);const s=H("select",{id},d);options.forEach(([v,k])=>H("option",{value:v,"data-i18n":k},s));s.value=value;S[id]=value;s.addEventListener("change",()=>{S[id]=s.value;on()});return s}
+function tcol(T,lo,hi){const u=Math.max(0,Math.min(1,(T-lo)/(hi-lo)));return `color-mix(in srgb,var(--red) ${Math.round(u*100)}%,var(--blue))`}
+function gauss(){let u=0;while(!u)u=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*Math.random())}
+function makeGas(N,b){const P=[];for(let i=0;i<N;i++)P.push({x:b.x0+4+Math.random()*(b.x1-b.x0-8),y:b.y0+4+Math.random()*(b.y1-b.y0-8),vx:gauss(),vy:gauss(),vz:gauss()});return P}
+function moveGas(P,dt,b,sp,r=2.5,onHit){P.forEach((p,i)=>{p.x+=p.vx*sp*dt;p.y+=p.vy*sp*dt;
+  if(p.x<b.x0+r){p.x=b.x0+r;p.vx=Math.abs(p.vx)}if(p.x>b.x1-r){p.x=b.x1-r;if(p.vx>0&&onHit)onHit(p,i);p.vx=-Math.abs(p.vx)}
+  if(p.y<b.y0+r){p.y=b.y0+r;p.vy=Math.abs(p.vy)}if(p.y>b.y1-r){p.y=b.y1-r;p.vy=-Math.abs(p.vy)}})}
+function drawGas(g,P,col,r=2.6,hl=-1){P.forEach((p,i)=>E("circle",{cx:p.x.toFixed(1),cy:p.y.toFixed(1),r:i===hl?r*1.8:r,fill:i===hl?"var(--red)":col},g))}
+function offCtl(id,off){const el=document.getElementById(id);if(el){const c=el.closest(".ctl");if(c)c.classList.toggle("off",off)}}
+function setOut(id,v){const el=document.getElementById(id);el.value=v;el.dispatchEvent(new Event("input"))}
+function polyLen(P){let L=0;for(let i=1;i<P.length;i++)L+=Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1]);return L}
+function polyAt(P,u){/* point at fraction u of the polyline (in data units, using index arc length) */const n=P.length-1;let tot=0;const seg=[];for(let i=0;i<n;i++){const l=Math.hypot(P[i+1][0]-P[i][0],P[i+1][1]-P[i][1]);seg.push(l);tot+=l}let d=Math.max(0,Math.min(1,u))*tot;for(let i=0;i<n;i++){if(d<=seg[i]||i===n-1){const f=seg[i]?Math.min(1,d/seg[i]):0;return[P[i][0]+(P[i+1][0]-P[i][0])*f,P[i][1]+(P[i+1][1]-P[i][1])*f]}d-=seg[i]}return P[n]}
+function polyPath(G,P){return P.map((q,i)=>(i?"L":"M")+G.X(q[0]).toFixed(1)+","+G.Y(q[1]).toFixed(1)).join("")}
+function workOf(P){let W=0;for(let i=1;i<P.length;i++)W+=(P[i][1]+P[i-1][1])/2*(P[i][0]-P[i-1][0]);return W}
+function sampleFn(f,a,b,n=80){const P=[];for(let i=0;i<=n;i++){const v=a+(b-a)*i/n;P.push([v,f(v)])}return P}
+function sbars(el,rows,max){el.innerHTML=rows.map(([k,v,cl,unit])=>`<div class="bar-row"><span class="bar-cap">${tr(k)}</span><div class="bar-track sgn"><div class="bar-fill" style="position:absolute;top:0;bottom:0;${v>=0?"left:50%":"right:50%"};width:${Math.max(0,Math.min(50,Math.abs(v)/(max||1)*50))}%;background:${cl}"></div></div><span class="v">${unit(v)}</span></div>`).join("")}
+function pctl(x,d=1){return fx(100*x,d)+" %"}
+
+/* ---------- hero: a gas in a cylinder runs a cycle; heat in/out at the bottom, work at the piston, traced on a p–V diagram ---------- */
+const SH={t:0,P:null};
+function heroState(u){/* u in [0,4): 4 legs of a rectangle cycle in (V,p) */const k=Math.floor(u),f=u-k;if(k===0)return{V:1+2*f,p:3,leg:0};if(k===1)return{V:3,p:3-2*f,leg:1};if(k===2)return{V:3-2*f,p:1,leg:2};return{V:1,p:1+2*f,leg:3}}
+function drawHero(dt){if(!reduceMotion)SH.t+=dt;const g=$("#hero");g.innerHTML="";const u=(SH.t/2.2)%4,s=heroState(u),T=s.p*s.V;
+  const x0=70,x1=210,yb=180,yp=yb-s.V*42;const b={x0:x0+4,x1:x1-4,y0:yp+8,y1:yb-4};if(!SH.P)SH.P=makeGas(36,{x0:x0+4,x1:x1-4,y0:60,y1:176});moveGas(SH.P,reduceMotion?0:dt,b,22*Math.sqrt(T),2.6);
+  const qin=s.leg===0||s.leg===3;E("rect",{x:x0-16,y:yb,width:x1-x0+32,height:16,rx:4,fill:qin?"var(--red)":"var(--blue)",opacity:.75},g);
+  E("path",{d:`M${x0},${yp-30} V${yb} H${x1} V${yp-30}`,fill:"none",stroke:"var(--ink)","stroke-width":3},g);drawGas(g,SH.P,"var(--ink)",2.6);
+  E("rect",{x:x0+2,y:yp-8,width:x1-x0-4,height:8,fill:"var(--muted)"},g);E("line",{x1:(x0+x1)/2,x2:(x0+x1)/2,y1:yp-8,y2:yp-34,stroke:"var(--muted)","stroke-width":5},g);
+  if(qin)farrow(g,x1+40,yb+10,0,-40,"var(--red)","Q",6,4);else farrow(g,x1+40,yb-30,0,40,"var(--blue)","Q",6,4);
+  if(s.leg===0)farrow(g,(x0+x1)/2+36,yp-6,0,-30,"var(--green)","W",6,4);if(s.leg===2)farrow(g,(x0+x1)/2+36,yp-36,0,30,"var(--green)","W",6,4);
+  const X=v=>640+(v-0.6)*130,Y=p=>178-(p-0.6)*62;E("line",{x1:620,x2:990,y1:186,y2:186,stroke:"var(--muted)"},g);E("line",{x1:620,x2:620,y1:8,y2:186,stroke:"var(--muted)"},g);
+  txt(g,990,200,"V",{"text-anchor":"end","font-style":"italic",fill:"var(--muted)"});txt(g,606,18,"p",{"font-style":"italic",fill:"var(--muted)"});
+  E("path",{d:`M${X(1)},${Y(3)} H${X(3)} V${Y(1)} H${X(1)} Z`,fill:"var(--copper)","fill-opacity":.18,stroke:"var(--blue)","stroke-width":3},g);
+  [[2,3,1,0],[3,2,0,1],[2,1,-1,0],[1,2,0,-1]].forEach(([v,p,dx,dy])=>arrow(g,X(v)-dx*8,Y(p)+dy*8,X(v)+dx*8,Y(p)-dy*8,"var(--blue)",3,10));
+  E("circle",{cx:X(s.V),cy:Y(s.p),r:7,fill:"var(--red)",stroke:"var(--panel)","stroke-width":2},g);
+  txt(g,(X(1)+X(3))/2,(Y(1)+Y(3))/2+6,"W",{"text-anchor":"middle","font-size":18,"font-weight":700,fill:"var(--copper)"});
+  txt(g,420,104,"ΔE_int = Q − W",{"text-anchor":"middle","font-size":26,"font-weight":700})}
+
+/* ---------- 1. zeroth law ---------- */
+const S1={t:0,TA:80,TB:20,Tt:20,playing:PL()};
+function reset1(){S1.TA=S.TA1;S1.TB=S.TB1;S1.Tt=20}
+(function(){const c=$("#c1");slider(c,{id:"TA1",key:"TA1",min:-20,max:100,step:1,value:80,fmt:v=>minus(v)+" °C",on:reset1});slider(c,{id:"TB1",key:"TB1",min:-20,max:100,step:1,value:20,fmt:v=>minus(v)+" °C",on:reset1});
+  seg(c,{id:"ct1",key:"ct1",options:[["none","ctN"],["TA","ctTA"],["TB","ctTB"],["AB","ctAB"]],value:"TA",on:noop});transport(c,S1,reset1);
+  S.ro1=readout(c,[["A","rTA1"],["B","rTB1"],["K","rTK1"],["C","rTC1"],["F","rTF1"],["s","rSt1"]]);reset1()})();
+function draw1(dt){const o=S1,mode=S.ct1;if(o.playing&&dt>0){const n=Math.ceil(dt/0.01),h=dt/n,G=60,CA=300,CB=300,Ct=15;for(let i=0;i<n;i++){let q;
+  if(mode==="TA"){q=G*(o.TA-o.Tt)*h;o.TA-=q/CA;o.Tt+=q/Ct}else if(mode==="TB"){q=G*(o.TB-o.Tt)*h;o.TB-=q/CB;o.Tt+=q/Ct}else if(mode==="AB"){q=G*(o.TA-o.TB)*h;o.TA-=q/CA;o.TB+=q/CB}}}
+  const g=$("#v1");g.innerHTML="";const lo=-20,hi=100,bx=(x,y,T,lab)=>{E("rect",{x,y,width:80,height:70,rx:6,style:`fill:${tcol(T,lo,hi)}`,"fill-opacity":.85,stroke:"var(--ink)","stroke-width":1.5},g);txt(g,x+40,y+42,lab,{"text-anchor":"middle","font-size":22,"font-weight":700,fill:"#fff"})};
+  const th=(x,y)=>{E("circle",{cx:x,cy:y,r:24,style:`fill:${tcol(o.Tt,lo,hi)}`,"fill-opacity":.85,stroke:"var(--ink)","stroke-width":1.5},g);txt(g,x,y+7,"T",{"text-anchor":"middle","font-size":20,"font-weight":700,fill:"#fff"})};
+  const flow=(x,y,dx,dy,d)=>{if(Math.abs(d)<0.3)return;const s=Math.sign(d),w=Math.min(9,1.5+Math.abs(d)*0.12);arrow(g,x-dx*s*16,y-dy*s*16,x+dx*s*16,y+dy*s*16,"var(--magenta)",w,12)};
+  const yb=232;E("line",{x1:20,x2:330,y1:yb,y2:yb,stroke:"var(--ink)","stroke-width":2},g);
+  if(mode==="AB"){bx(170,yb-140,o.TA,"A");bx(170,yb-70,o.TB,"B");th(60,yb-24);E("ellipse",{cx:210,cy:yb-70,rx:70,ry:92,fill:"none",stroke:"var(--magenta)","stroke-width":3,opacity:.7},g);flow(270,yb-70,0,1,o.TA-o.TB)}
+  else{bx(50,yb-70,o.TA,"A");bx(200,yb-70,o.TB,"B");if(mode==="TA"){th(90,yb-94);flow(130,yb-70,0,-1,o.TA-o.Tt);E("ellipse",{cx:90,cy:yb-58,rx:62,ry:78,fill:"none",stroke:"var(--magenta)","stroke-width":3,opacity:.7},g)}
+    else if(mode==="TB"){th(240,yb-94);flow(280,yb-70,0,-1,o.TB-o.Tt);E("ellipse",{cx:240,cy:yb-58,rx:62,ry:78,fill:"none",stroke:"var(--magenta)","stroke-width":3,opacity:.7},g)}else th(165,70)}
+  /* thermometer with three scales */const cx=385,yT=v=>238-(v-(-30))*1.6,K=o.Tt+273.15;E("rect",{x:cx-7,y:yT(110),width:14,height:yT(-30)-yT(110),rx:7,fill:"var(--grid)",stroke:"var(--ink)"},g);
+  E("rect",{x:cx-4,y:yT(Math.max(-30,Math.min(110,o.Tt))),width:8,height:yT(-30)-yT(Math.max(-30,Math.min(110,o.Tt)))+4,fill:"var(--red)"},g);E("circle",{cx,cy:yT(-30)+10,r:12,fill:"var(--red)",stroke:"var(--ink)"},g);
+  [[0,"273 K","0 °C","32 °F"],[100,"373 K","100 °C","212 °F"]].forEach(([c,k,cc,f])=>{E("line",{x1:cx-12,x2:cx+12,y1:yT(c),y2:yT(c),stroke:"var(--ink)"},g);txt(g,cx-16,yT(c)+4,k,{"text-anchor":"end","font-size":10,fill:"var(--muted)"});txt(g,cx+16,yT(c)-2,cc,{"font-size":10,fill:"var(--muted)"});txt(g,cx+16,yT(c)+10,f,{"font-size":10,fill:"var(--muted)"})});
+  txt(g,cx,16,fx(o.Tt,1)+" °C",{"text-anchor":"middle","font-size":12,"font-weight":700});
+  const ro=S.ro1;ro.A.textContent=fx(o.TA,1)+" °C";ro.B.textContent=fx(o.TB,1)+" °C";ro.K.textContent=fx(K,2)+" K";ro.C.textContent=fx(o.Tt,2)+" °C";ro.F.textContent=fx(o.Tt*9/5+32,1)+" °F";
+  ro.s.innerHTML=tr(Math.abs(o.TA-o.TB)<0.3?"eqAB1":"neqAB1")}
+
+/* ---------- 2. thermal expansion: a bimetallic strip ---------- */
+(function(){const c=$("#c2");slider(c,{id:"dT2",key:"dT2",min:-100,max:300,step:5,value:150,fmt:v=>minus(v)+" °C",on:noop});slider(c,{id:"L2",key:"L2",min:0.05,max:0.3,step:0.01,value:0.25,fmt:v=>(v*100).toFixed(0)+" cm",on:noop});
+  S.ro2=readout(c,[["b","rDLb2"],["s","rDLs2"],["tip","rTip2"],["v","rDV2"],["ve","rDVe2"]])})();
+function draw2(){const dT=S.dT2,L=S.L2,ab=19e-6,as=11e-6,h=1e-3,k=1.5*(ab-as)*dT/h,sc=1200,x0=40,y0=110,g=$("#v2");g.innerHTML="";
+  E("rect",{x:x0-14,y:y0-60,width:14,height:120,fill:"var(--muted)",opacity:.7},g);E("line",{x1:x0,x2:x0+L*sc,y1:y0,y2:y0,stroke:"var(--muted)","stroke-dasharray":"5 4"},g);
+  const N=80,pts=[];let x=0,y=0,phi=0;for(let i=0;i<=N;i++){pts.push([x,y,phi]);const ds=L/N;x+=Math.cos(phi)*ds;y+=Math.sin(phi)*ds;phi+=k*ds}
+  const off=(o)=>pts.map(([X,Y,P])=>[x0+X*sc-Math.sin(P)*o,y0+Y*sc+Math.cos(P)*o]);const band=(a,b,col)=>{const A=off(a),B=off(b).reverse();E("polygon",{points:A.concat(B).map(p=>p.map(v=>v.toFixed(1)).join(",")).join(" "),fill:col,opacity:.9},g)};
+  band(-8,0,"var(--copper)");band(0,8,"var(--cyan)");const tip=pts[N];
+  lbl(g,x0+8,y0-70,tr("brass2"),"var(--copper)");lbl(g,x0+8,y0+82,tr("steel2"),"var(--cyan)");
+  txt(g,425,24,"T = 20 °C "+(dT>=0?"+ ":"− ")+Math.abs(dT)+" °C",{"text-anchor":"end","font-size":13,"font-weight":700,fill:tcol(dT,-100,300)});
+  if(Math.abs(tip[1])*sc>6){const tx=x0+tip[0]*sc,ty=y0+tip[1]*sc;dbl(g,tx+16,y0,tx+16,ty,"var(--magenta)");lbl(g,tx+22,(y0+ty)/2+4,"δ","var(--magenta)",{"font-style":"italic"})}
+  const ro=S.ro2;ro.b.textContent=fx(ab*L*dT*1000,3)+" mm";ro.s.textContent=fx(as*L*dT*1000,3)+" mm";ro.tip.textContent=fx(tip[1]*1000,1)+" mm";ro.v.textContent=fx(3*ab*dT*100,3)+" %";ro.ve.textContent=fx(((1+ab*dT)**3-1)*100,3)+" %"}
+
+/* ---------- 3. heat capacity and specific heat ---------- */
+const MAT3=[["lead",128],["tung",134],["silv",236],["copp",386],["alum",900],["brass",380],["gran",790],["glass",840],["merc",140],["eth",2430],["sea",3900]];
+const S3={t:0,playing:PL()};
+(function(){const c=$("#c3");sel(c,{id:"mat3",key:"mat3",options:MAT3.map(([k])=>[k,"m_"+k]),value:"copp",on:()=>{S3.t=0}});slider(c,{id:"m3",key:"mass",min:0.1,max:2,step:0.1,value:0.5,fmt:v=>v.toFixed(1)+" kg",on:()=>{S3.t=0}});
+  slider(c,{id:"P3",key:"P3",min:-300,max:300,step:10,value:200,fmt:v=>minus(v)+" W",on:()=>{S3.t=0}});transport(c,S3);S.ro3=readout(c,[["c","rc3"],["C","rC3"],["Q","rQ3"],["T","rT3"],["Tw","rTw3"],["r","rR3"]])})();
+function draw3(dt){clock(S3,dt);if(S3.t>30)S3.t=0;const c=MAT3.find(m=>m[0]===S.mat3)[1],cw=4187,m=S.m3,P=S.P3,t=S3.t,Q=P*t,T=20+Q/(c*m),Tw=20+Q/(cw*m);
+  const g=$("#v3");g.innerHTML="";const lo=-40,hi=140;
+  [[40,T,tr("m_"+S.mat3)],[140,Tw,tr("m_water")]].forEach(([x,TT,lab])=>{const isW=x===140;if(isW){E("path",{d:`M${x},120 V200 H${x+80} V120`,fill:"none",stroke:"var(--ink)","stroke-width":2},g);E("rect",{x:x+2,y:136,width:76,height:62,style:`fill:${tcol(TT,lo,hi)}`,"fill-opacity":.7},g)}
+    else E("rect",{x,y:140,width:80,height:60,rx:4,style:`fill:${tcol(TT,lo,hi)}`,"fill-opacity":.85,stroke:"var(--ink)"},g);
+    E("rect",{x:x-6,y:204,width:92,height:10,rx:3,fill:P>=0?"var(--red)":"var(--blue)",opacity:.75},g);if(P!==0){for(let i=0;i<3;i++){const xx=x+16+i*24;if(P>0)arrow(g,xx,236,xx,212,"var(--red)",2.2,7);else arrow(g,xx,212,xx,236,"var(--blue)",2.2,7)}}
+    lbl(g,x+40,128-(isW?10:0),lab,"var(--ink)",{"text-anchor":"middle","font-size":12,"font-weight":700});txt(g,x+40,175,fx(TT,1)+" °C",{"text-anchor":"middle","font-size":13,"font-weight":700,fill:"#fff"})});
+  txt(g,130,262,P>=0?tr("qin3"):tr("qout3"),{"text-anchor":"middle","font-size":12,fill:P>=0?"var(--red)":"var(--blue)"});
+  const G=graph(g,{l:270,r:425,t0:30,b:240,xmin:0,xmax:30,ymin:lo,ymax:hi,xt:[[0,"0"],[15,"15"],[30,"30 s"]],yt:[[-40,"−40"],[0,"0"],[50,"50"],[100,"100 °C"]],yl:"T(t)"});
+  const cl=v=>Math.max(lo,Math.min(hi,v));plot(g,G,tt=>cl(20+P*tt/(c*m)),0,30,"var(--copper)",1.4,60,{opacity:.35});plot(g,G,tt=>cl(20+P*tt/(cw*m)),0,30,"var(--cyan)",1.4,60,{opacity:.35});
+  plot(g,G,tt=>cl(20+P*tt/(c*m)),0,t,"var(--copper)",3,60);plot(g,G,tt=>cl(20+P*tt/(cw*m)),0,t,"var(--cyan)",3,60);
+  const ro=S.ro3;ro.c.textContent=c+" J/(kg·K)";ro.C.textContent=fx(c*m,0)+" J/K";ro.Q.textContent=si(Q,"J");ro.T.textContent=fx(T,1)+" °C";ro.Tw.textContent=fx(Tw,1)+" °C";ro.r.textContent=fx(cw/c,2)+" ×"}
+
+/* ---------- 4. heats of transformation: heating curve of water ---------- */
+const S4={t:0,Q:0,playing:PL()},C_ICE=2220,C_W=4187,C_ST=2010,LF=333e3,LV=2256e3,SP4=200;
+function q4(m){const a=m*C_ICE*20,b=a+LF*m,c=b+m*C_W*100,d=c+LV*m,e=d+m*C_ST*20;return[a,b,c,d,e]}
+function state4(Q,m){const[a,b,c,d,e]=q4(m);if(Q<a)return{T:-20+Q/(m*C_ICE),ph:"ice",fi:1,fw:0,fs:0};if(Q<b)return{T:0,ph:"melt",fi:1-(Q-a)/(b-a),fw:(Q-a)/(b-a),fs:0};
+  if(Q<c)return{T:(Q-b)/(m*C_W),ph:"water",fi:0,fw:1,fs:0};if(Q<d)return{T:100,ph:"boil",fi:0,fw:1-(Q-c)/(d-c),fs:(Q-c)/(d-c)};return{T:100+(Math.min(Q,e)-d)/(m*C_ST),ph:"steam",fi:0,fw:0,fs:1}}
+(function(){const c=$("#c4");slider(c,{id:"m4",key:"mass",min:0.1,max:1,step:0.05,value:0.5,fmt:v=>v.toFixed(2)+" kg",on:()=>{S4.Q=0}});slider(c,{id:"P4",key:"P4",min:200,max:2000,step:50,value:1000,fmt:v=>v+" W",on:noop});
+  transport(c,S4,()=>{S4.Q=0});S.ro4=readout(c,[["ph","rPh4"],["T","rT4"],["Q","rQ4"],["F","rF4"],["V","rV4"]])})();
+function draw4(dt){const m=S.m4,qs=q4(m),e=qs[4];if(S4.playing)S4.Q+=S.P4*dt*SP4;if(S4.Q>e*1.12)S4.Q=0;const st=state4(S4.Q,m);
+  const g=$("#v4");g.innerHTML="";const G=graph(g,{l:56,r:420,t0:30,b:196,xmin:0,xmax:e/1000,ymin:-30,ymax:130,xt:[[0,"0"],[e/2000,fx(e/2000,0)],[e/1000,fx(e/1000,0)+" kJ"]],yt:[[-20,"−20"],[0,"0"],[100,"100 °C"]],yl:tr("g4")});
+  const crv=qq=>state4(qq*1000,m).T;plot(g,G,crv,0,e/1000,"var(--blue)",1.5,300,{opacity:.3});plot(g,G,crv,0,Math.min(S4.Q,e)/1000,"var(--blue)",3,300);
+  E("circle",{cx:G.X(Math.min(S4.Q,e)/1000),cy:G.Y(st.T),r:5.5,fill:"var(--red)",stroke:"var(--panel)","stroke-width":2},g);
+  lbl(g,G.X((qs[0]+qs[1])/2000),G.Y(0)-8,"Q = L_F m","var(--green)",{"text-anchor":"middle","font-size":11});lbl(g,G.X((qs[2]+qs[3])/2000),G.Y(100)-8,"Q = L_V m","var(--green)",{"text-anchor":"middle","font-size":11});
+  /* beaker */const bx=60,by=228,bw=90,bh=58;E("path",{d:`M${bx},${by} V${by+bh} H${bx+bw} V${by}`,fill:"none",stroke:"var(--ink)","stroke-width":2},g);
+  const lv=st.fw*36;if(lv>0.5)E("rect",{x:bx+2,y:by+bh-2-lv,width:bw-4,height:lv,fill:"var(--blue)",opacity:.45},g);
+  const nI=Math.round(st.fi*6);for(let i=0;i<nI;i++)E("rect",{x:bx+8+(i%3)*26,y:by+bh-18-Math.floor(i/3)*16-(lv>4?lv-6:0),width:18,height:14,rx:3,fill:"var(--cyan)",opacity:.85,stroke:"var(--ink)","stroke-width":.8},g);
+  const nS=Math.round(st.fs*6+(st.ph==="boil"?2:0));for(let i=0;i<nS;i++){const ph=(S4.Q/40000+i*0.37)%1;E("circle",{cx:bx+12+((i*29)%70),cy:by+bh-6-ph*(bh+24),r:4+ph*4,fill:"var(--muted)",opacity:(0.6*(1-ph)).toFixed(2)},g)}
+  E("rect",{x:bx-6,y:by+bh+2,width:bw+12,height:7,rx:3,fill:"var(--red)",opacity:.8},g);txt(g,bx+bw+20,by+26,tr("ph_"+st.ph),{"font-size":14,"font-weight":700});txt(g,bx+bw+20,by+46,"×"+SP4+" "+tr("speed4"),{"font-size":11,fill:"var(--muted)"});
+  const ro=S.ro4;ro.ph.innerHTML=tr("ph_"+st.ph);ro.T.textContent=fx(st.T,1)+" °C";ro.Q.textContent=fx(Math.min(S4.Q,e)/1000,1)+" kJ";ro.F.textContent=fx(LF*m/1000,1)+" kJ";ro.V.textContent=fx(LV*m/1000,0)+" kJ"}
+
+/* ---------- 5. work done by a gas: different paths from i to f ---------- */
+const S5={t:0,playing:PL(),P:null};const VI5=1,PI5=300,VF5=4,PF5=100,EX5=Math.log(3)/Math.log(4);
+function path5(k){const cur=sampleFn(v=>PI5*(VI5/v)**EX5,VI5,VF5,60);if(k==="a")return cur;if(k==="b")return[[VI5,PI5],[VF5,PI5],[VF5,PF5]];if(k==="c")return[[VI5,PI5],[VI5,PF5],[VF5,PF5]];
+  if(k==="d")return[[VI5,PI5],[VI5,S.ps5],[VF5,S.ps5],[VF5,PF5]];if(k==="e")return cur.slice().reverse();return cur.concat(sampleFn(v=>PF5+(PI5-PF5)*((VF5-v)/3)**2,VF5,VI5,60).slice(1))}
+(function(){const c=$("#c5");seg(c,{id:"pt5",key:"pt5",options:[["a","pa5"],["b","pb5"],["c","pc5"],["d","pd5"],["e","pe5"],["f","pf5"]],value:"a",on:()=>{S5.t=0;offCtl("ps5",S.pt5!=="d")}});
+  slider(c,{id:"ps5",key:"ps5",min:50,max:350,step:10,value:200,fmt:v=>v+" kPa",on:noop});transport(c,S5);S.ro5=readout(c,[["W","rW5"],["s","rS5"]]);offCtl("ps5",true)})();
+function draw5(dt){clock(S5,dt);const P=path5(S.pt5),W=workOf(P),u=(S5.t/5)%1.25,q=polyAt(P,Math.min(1,u));const g=$("#v5");g.innerHTML="";
+  const G=graph(g,{l:170,r:420,t0:30,b:250,xmin:0,xmax:4.5,ymin:0,ymax:360,xt:[[0,"0"],[1,"1"],[2,"2"],[3,"3"],[4,"4 L"]],yt:[[0,"0"],[100,"100"],[200,"200"],[300,"300 kPa"]],yl:"p",xl:"V"});
+  if(S.pt5==="f")E("path",{d:polyPath(G,P)+"Z",fill:"var(--copper)","fill-opacity":.3},g);else{const A=P.concat([[P[P.length-1][0],0],[P[0][0],0]]);E("path",{d:polyPath(G,A)+"Z",fill:W>=0?"var(--green)":"var(--red)","fill-opacity":.22},g)}
+  E("path",{d:polyPath(G,P),fill:"none",stroke:"var(--blue)","stroke-width":3},g);const mid=polyAt(P,0.5),mid2=polyAt(P,0.53);arrow(g,G.X(mid[0]),G.Y(mid[1]),G.X(mid2[0]),G.Y(mid2[1]),"var(--blue)",3,11);
+  [[VI5,PI5,"i"],[VF5,PF5,"f"]].forEach(([v,p,s])=>{E("circle",{cx:G.X(v),cy:G.Y(p),r:4.5,fill:"var(--ink)"},g);lbl(g,G.X(v)+(s==="i"?-12:8),G.Y(p)-6,s,"var(--ink)",{"font-style":"italic","font-weight":700})});
+  E("circle",{cx:G.X(q[0]),cy:G.Y(q[1]),r:6,fill:"var(--red)",stroke:"var(--panel)","stroke-width":2},g);lbl(g,G.X(2.2),G.Y(40),"W = "+fx(W,0)+" J","var(--ink)",{"text-anchor":"middle","font-weight":700});
+  /* cylinder */const x0=30,x1=120,yb=250,yp=yb-q[0]*44;if(!S5.P)S5.P=makeGas(24,{x0:x0+4,x1:x1-4,y0:80,y1:246});moveGas(S5.P,dt,{x0:x0+3,x1:x1-3,y0:yp+4,y1:yb-3},14*Math.sqrt(q[0]*q[1]/100),2.4);
+  E("path",{d:`M${x0},40 V${yb} H${x1} V40`,fill:"none",stroke:"var(--ink)","stroke-width":2.5},g);drawGas(g,S5.P,"var(--ink)",2.4);E("rect",{x:x0+2,y:yp-8,width:x1-x0-4,height:8,fill:"var(--muted)"},g);
+  E("line",{x1:(x0+x1)/2,x2:(x0+x1)/2,y1:yp-8,y2:20,stroke:"var(--muted)","stroke-width":4},g);txt(g,(x0+x1)/2,272,"p = "+fx(q[1],0)+" kPa",{"text-anchor":"middle","font-size":11,fill:"var(--muted)"});
+  const ro=S.ro5;ro.W.textContent=fx(W,0)+" J";ro.s.innerHTML=tr(S.pt5==="f"?"s5c":W>0?"s5p":"s5n")}
+
+/* ---------- 6. the first law: Q and W depend on the path, Q − W does not ---------- */
+const S6={t:0,playing:PL()};const N6=1,VI6=10,TI6=300;
+function paths6(){const Vf=S.Vf6,Tf=S.Tf6,pi=N6*R_*TI6/VI6,pf=N6*R_*Tf/Vf,dE=1.5*N6*R_*(Tf-TI6);/* kPa with V in L: p = nRT/V gives kPa when V in L */
+  const A=[[VI6,pi],[VI6,pf],[Vf,pf]],B=[[VI6,pi],[Vf,pi],[Vf,pf]],C=sampleFn(v=>N6*R_*TI6/v,VI6,Vf,60).concat([[Vf,pf]]);
+  return{pi,pf,dE,P:{A,B,C},W:{A:pf*(Vf-VI6),B:pi*(Vf-VI6),C:N6*R_*TI6*Math.log(Vf/VI6)}}}
+(function(){const c=$("#c6");seg(c,{id:"pt6",key:"pt6",options:[["A","p6A"],["B","p6B"],["C","p6C"]],value:"A",on:()=>{S6.t=0}});slider(c,{id:"Vf6",key:"Vf6",min:5,max:30,step:1,value:25,fmt:v=>v+" L",on:noop});
+  slider(c,{id:"Tf6",key:"Tf6",min:200,max:600,step:10,value:450,fmt:v=>v+" K",on:noop});transport(c,S6);S.ro6=readout(c,[["Q","rQ6"],["W","rW6"],["E","rE6"]])})();
+function draw6(dt){clock(S6,dt);const D=paths6(),k=S.pt6,P=D.P[k],W=D.W[k],Q=D.dE+W,g=$("#v6");g.innerHTML="";const pm=Math.max(D.pi,D.pf)*1.15;
+  const G=graph(g,{l:60,r:420,t0:26,b:240,xmin:0,xmax:32,ymin:0,ymax:pm,xt:[[0,"0"],[10,"10"],[20,"20"],[30,"30 L"]],yt:[[0,"0"],[Math.round(pm/2/50)*50,String(Math.round(pm/2/50)*50)],[Math.round(pm*0.9/50)*50,Math.round(pm*0.9/50)*50+" kPa"]],yl:"p",xl:"V"});
+  [[TI6,"T_i"],[S.Tf6,"T_f"]].forEach(([T,s])=>{plot(g,G,v=>N6*R_*T/v,Math.max(3,N6*R_*T/pm),32,"var(--muted)",1.2,120,{"stroke-dasharray":"4 4"});lbl(g,G.X(31),G.Y(N6*R_*T/31)-6,s,"var(--muted)",{"text-anchor":"end","font-size":11})});
+  const cols={A:"var(--blue)",B:"var(--green)",C:"var(--copper)"};["A","B","C"].forEach(kk=>{E("path",{d:polyPath(G,D.P[kk]),fill:"none",stroke:cols[kk],"stroke-width":kk===k?3.4:1.6,opacity:kk===k?1:.45},g);const m=polyAt(D.P[kk],kk==="C"?0.4:0.5);lbl(g,G.X(m[0])+6,G.Y(m[1])-6,kk,cols[kk],{"font-weight":700})});
+  [[VI6,D.pi,"i"],[S.Vf6,D.pf,"f"]].forEach(([v,p,s])=>{E("circle",{cx:G.X(v),cy:G.Y(p),r:4.5,fill:"var(--ink)"},g);lbl(g,G.X(v)-12,G.Y(p)-6,s,"var(--ink)",{"font-style":"italic","font-weight":700})});
+  const q=polyAt(P,Math.min(1,(S6.t/4)%1.3));E("circle",{cx:G.X(q[0]),cy:G.Y(q[1]),r:6,fill:"var(--red)",stroke:"var(--panel)","stroke-width":2},g);
+  const mx=Math.max(...["A","B","C"].map(kk=>Math.abs(D.dE+D.W[kk])),Math.abs(D.dE),1);sbars($("#bars6"),[["bQ",Q,"var(--red)",Jx],["bW",W,"var(--green)",Jx],["bE",D.dE,"var(--magenta)",Jx]],mx);
+  $("#tbl6").innerHTML=`<tr><th>${tr("path")}</th><th>Q</th><th>W</th><th>Q − W</th></tr>`+["A","B","C"].map(kk=>`<tr${kk===k?' style="font-weight:700"':""}><td>${kk}</td><td>${Jx(D.dE+D.W[kk])}</td><td>${Jx(D.W[kk])}</td><td>${Jx(D.dE)}</td></tr>`).join("");
+  const ro=S.ro6;ro.Q.textContent=Jx(Q);ro.W.textContent=Jx(W);ro.E.textContent=Jx(D.dE)}
+
+/* ---------- 7. special cases of the first law ---------- */
+const S7={t:0,playing:PL(),P:null,box:null};const VI7=10,TI7=300;
+function u7(){const m=S.md7;offCtl("Vf7",m==="isoV");offCtl("Q7",m!=="isoV");S7.t=0;S7.P=null}
+(function(){const c=$("#c7");seg(c,{id:"md7",key:"md7",options:[["adia","m7a"],["isoV","m7v"],["cyc","m7c"],["free","m7f"]],value:"adia",on:u7});
+  slider(c,{id:"Vf7",key:"Vf7",min:12,max:30,step:1,value:20,fmt:v=>v+" L",on:()=>{S7.P=null}});slider(c,{id:"Q7",key:"Q7",min:-3000,max:3000,step:100,value:1500,fmt:v=>minus(v)+" J",on:noop});
+  transport(c,S7,()=>{S7.P=null});S.ro7=readout(c,[["Q","rQ6"],["W","rW6"],["E","rE6"],["T","rTf7"]]);u7()})();
+function draw7(dt){clock(S7,dt);const m=S.md7,Vf=S.Vf7,pi=R_*TI7/VI7;let P,Q,W,dE,Tf,Tnow;const u=Math.min(1,(S7.t/4)%1.4);
+  if(m==="adia"){Tf=TI7*(VI7/Vf)**(2/3);W=1.5*R_*(TI7-Tf);Q=0;dE=-W;P=sampleFn(v=>pi*(VI7/v)**(5/3),VI7,Vf,60)}
+  else if(m==="isoV"){Q=S.Q7;W=0;dE=Q;Tf=TI7+Q/(1.5*R_);P=[[VI7,pi],[VI7,R_*Tf/VI7]]}
+  else if(m==="cyc"){P=[[VI7,pi],[Vf,pi],[Vf,pi/2],[VI7,pi/2],[VI7,pi]];W=workOf(P);Q=W;dE=0;Tf=TI7}
+  else{Tf=TI7;Q=0;W=0;dE=0;P=[[VI7,pi],[Vf,R_*TI7/Vf]]}
+  const q=polyAt(P,u);Tnow=m==="free"?TI7:q[0]*q[1]/R_;const g=$("#v7");g.innerHTML="";const pm=Math.max(...P.map(x=>x[1]))*1.2;
+  const G=graph(g,{l:190,r:425,t0:26,b:240,xmin:0,xmax:32,ymin:0,ymax:pm,xt:[[0,"0"],[10,"10"],[20,"20"],[30,"30 L"]],yt:[[0,"0"],[Math.round(pi),String(Math.round(pi))+" kPa"]],yl:"p",xl:"V"});
+  if(m==="free"){E("path",{d:polyPath(G,P),fill:"none",stroke:"var(--muted)","stroke-width":2,"stroke-dasharray":"2 6"},g);plot(g,G,v=>R_*TI7/v,6,32,"var(--muted)",1.2,80,{"stroke-dasharray":"4 4"});lbl(g,G.X(20),G.Y(R_*TI7/20)-30,tr("noPath7"),"var(--muted)",{"text-anchor":"middle","font-size":11})}
+  else{if(m==="cyc")E("path",{d:polyPath(G,P)+"Z",fill:"var(--copper)","fill-opacity":.25},g);else if(m==="adia")E("path",{d:polyPath(G,P.concat([[Vf,0],[VI7,0]]))+"Z",fill:"var(--green)","fill-opacity":.2},g);
+    E("path",{d:polyPath(G,P),fill:"none",stroke:"var(--blue)","stroke-width":3},g);E("circle",{cx:G.X(q[0]),cy:G.Y(q[1]),r:6,fill:"var(--red)",stroke:"var(--panel)","stroke-width":2},g)}
+  [[P[0],"i"],[P[P.length-1],m==="cyc"?"":"f"]].forEach(([pp,s])=>{if(!s)return;E("circle",{cx:G.X(pp[0]),cy:G.Y(pp[1]),r:4.5,fill:"var(--ink)"},g);lbl(g,G.X(pp[0])+7,G.Y(pp[1])-7,s,"var(--ink)",{"font-style":"italic","font-weight":700})});
+  /* scene */if(m==="free"){const x0=14,x1=170,y0=70,y1=190,xm=x0+(x1-x0)*VI7/Vf;if(!S7.P){S7.P=makeGas(40,{x0:x0+4,x1:xm-4,y0:y0+4,y1:y1-4});S7.box=xm}
+      const open=S7.t>0.6;moveGas(S7.P,dt,{x0:x0+3,x1:open?x1-3:xm-3,y0:y0+3,y1:y1-3},26,2.4);
+      E("rect",{x:x0-6,y:y0-6,width:x1-x0+12,height:y1-y0+12,fill:"none",stroke:"var(--copper)","stroke-width":6,opacity:.6},g);E("rect",{x:x0,y:y0,width:x1-x0,height:y1-y0,fill:"none",stroke:"var(--ink)","stroke-width":2},g);
+      if(!open)E("line",{x1:xm,x2:xm,y1:y0,y2:y1,stroke:"var(--ink)","stroke-width":3},g);else{E("line",{x1:xm,x2:xm,y1:y0,y2:(y0+y1)/2-14,stroke:"var(--ink)","stroke-width":3},g);E("line",{x1:xm,x2:xm,y1:(y0+y1)/2+14,y2:y1,stroke:"var(--ink)","stroke-width":3},g)}
+      drawGas(g,S7.P,"var(--ink)",2.4);txt(g,(x0+x1)/2,214,tr(open?"open7":"closed7"),{"text-anchor":"middle","font-size":11,fill:"var(--muted)"})}
+  else{const x0=40,x1=140,yb=240,V=m==="free"?Vf:q[0],yp=yb-V*6;if(!S7.P)S7.P=makeGas(26,{x0:x0+4,x1:x1-4,y0:yb-56,y1:yb-4});moveGas(S7.P,dt,{x0:x0+3,x1:x1-3,y0:yp+3,y1:yb-3},14*Math.sqrt(Tnow/300),2.4);
+    const ins=m==="adia";if(ins)E("path",{d:`M${x0-8},${yp-40} V${yb+8} H${x1+8} V${yp-40}`,fill:"none",stroke:"var(--copper)","stroke-width":8,opacity:.6},g);
+    E("path",{d:`M${x0},${yp-40} V${yb} H${x1} V${yp-40}`,fill:"none",stroke:"var(--ink)","stroke-width":2.5},g);drawGas(g,S7.P,"var(--ink)",2.4);
+    if(m==="isoV")E("line",{x1:x0-10,x2:x1+10,y1:yp-9,y2:yp-9,stroke:"var(--red)","stroke-width":3},g);E("rect",{x:x0+2,y:yp-8,width:x1-x0-4,height:8,fill:"var(--muted)"},g);
+    if(!ins){const qs=m==="isoV"?Q:(u<0.25||u>0.75?1:-1);E("rect",{x:x0-14,y:yb+4,width:x1-x0+28,height:12,rx:3,fill:qs>=0?"var(--red)":"var(--blue)",opacity:.7},g)}
+    txt(g,(x0+x1)/2,24,"T = "+fx(Tnow,0)+" K",{"text-anchor":"middle","font-size":12,"font-weight":700})}
+  const mx=Math.max(Math.abs(Q),Math.abs(W),Math.abs(dE),300);sbars($("#bars7"),[["bQ",Q,"var(--red)",Jx],["bW",W,"var(--green)",Jx],["bE",dE,"var(--magenta)",Jx]],mx);
+  const ro=S.ro7;ro.Q.textContent=Jx(Q);ro.W.textContent=Jx(W);ro.E.textContent=Jx(dE);ro.T.textContent=fx(Tf,1)+" K"}
+
+/* ---------- 8. heat transfer: conduction and radiation ---------- */
+const S8={t:0,playing:PL(),pk:[],acc:0};const MAT8=[["copp",401],["alum",235],["steel",14],["glass",1.0],["brick",0.6],["wood",0.12],["fib",0.048],["air",0.026]];
+function u8(){const c=S.md8==="cond";["TH8","TC8","mat8","L8"].forEach(id=>offCtl(id,!c));["Tr8","eps8"].forEach(id=>offCtl(id,c));S8.pk=[]}
+(function(){const c=$("#c8");seg(c,{id:"md8",key:"md8",options:[["cond","m8c"],["rad","m8r"]],value:"cond",on:u8});sel(c,{id:"mat8",key:"mat8",options:MAT8.map(([k])=>[k,"m_"+k]),value:"glass",on:()=>{S8.pk=[]}});
+  slider(c,{id:"TH8",key:"TH8",min:20,max:500,step:5,value:100,fmt:v=>v+" °C",on:noop});slider(c,{id:"TC8",key:"TC8",min:-20,max:100,step:1,value:20,fmt:v=>minus(v)+" °C",on:noop});
+  slider(c,{id:"L8",key:"L8",min:1,max:100,step:1,value:10,fmt:v=>v+" mm",on:noop});slider(c,{id:"Tr8",key:"Tr8",min:200,max:3000,step:50,value:1000,fmt:v=>v+" K",on:noop});
+  slider(c,{id:"eps8",key:"eps8",min:0,max:1,step:0.05,value:0.9,fmt:v=>v.toFixed(2),on:noop});slider(c,{id:"A8",key:"A8",min:0.01,max:2,step:0.01,value:1,fmt:v=>v.toFixed(2)+" m²",on:noop});
+  transport(c,S8);S.ro8=readout(c,[["P","rP8"],["R","rR8"],["E","rE8"]]);u8()})();
+function bbcol(T){if(T<750)return"var(--muted)";const u=Math.min(1,(T-750)/2250);const r=255,gg=Math.round(60+190*u),b=Math.round(30+200*Math.max(0,u-0.4)/0.6);return`rgb(${r},${gg},${b})`}
+function draw8(dt){clock(S8,dt);const g=$("#v8");g.innerHTML="";const A=S.A8,ro=S.ro8;
+  if(S.md8==="cond"){const k=MAT8.find(m=>m[0]===S.mat8)[1],L=S.L8/1000,dT=S.TH8-S.TC8,P=k*A*dT/L,Rv=L/k;const w=40+130*Math.log10(S.L8)/2,x1=150,x2=x1+w,y0=50,y1=210;
+    E("rect",{x:20,y:y0,width:x1-20,height:y1-y0,rx:6,fill:"var(--copper)",opacity:.8},g);E("rect",{x:x2,y:y0,width:420-x2,height:y1-y0,rx:6,fill:"var(--cyan)",opacity:.7},g);
+    const gr=E("linearGradient",{id:"gr8"},E("defs",{},g));E("stop",{offset:"0%","stop-color":"var(--red)","stop-opacity":.55},gr);E("stop",{offset:"100%","stop-color":"var(--blue)","stop-opacity":.55},gr);E("rect",{x:x1,y:y0,width:w,height:y1-y0,fill:"url(#gr8)",stroke:"var(--ink)"},g);
+    txt(g,85,y0+26,"T_H = "+S.TH8+" °C",{"text-anchor":"middle","font-size":12,"font-weight":700,fill:"#fff"});txt(g,(x2+420)/2,y0+26,"T_C = "+S.TC8+" °C",{"text-anchor":"middle","font-size":12,"font-weight":700,fill:"#fff"});
+    const yT=T=>y1-10-(T+20)/(520)*(y1-y0-30);E("line",{x1,y1:yT(S.TH8),x2,y2:yT(S.TC8),stroke:"var(--ink)","stroke-width":2,"stroke-dasharray":"5 3"},g);
+    if(S8.playing&&dP(P)){S8.acc+=dt*Math.min(30,Math.max(0.4,Math.log10(Math.abs(P)+1)*3));while(S8.acc>1){S8.acc--;S8.pk.push({x:dT>=0?x1:x2,y:y0+12+Math.random()*(y1-y0-24)})}}
+    S8.pk.forEach(p=>{p.x+=(dT>=0?1:-1)*Math.max(20,w*0.9)*dt});S8.pk=S8.pk.filter(p=>p.x>=x1-1&&p.x<=x2+1);S8.pk.forEach(p=>E("circle",{cx:p.x,cy:p.y,r:3.2,fill:"var(--magenta)"},g));
+    dbl(g,x1,y1+16,x2,y1+16,"var(--ink)");lbl(g,(x1+x2)/2,y1+36,"L = "+S.L8+" mm","var(--ink)",{"text-anchor":"middle","font-size":11});lbl(g,(x1+x2)/2,y0-10,"k = "+k+" W/(m·K)","var(--ink)",{"text-anchor":"middle","font-size":11});
+    ro.P.textContent=si(P,"W");ro.R.textContent=sci(Rv)+" m²·K/W";ro.E.textContent=si(P*60,"J")}
+  else{const T=S.Tr8,P=SIG*S.eps8*A*T**4,cx=150,cy=135,r=40+30*Math.sqrt(A/2),n=Math.round(4+Math.min(20,Math.log10(P+1)*3));
+    E("circle",{cx,cy,r,fill:bbcol(T),stroke:"var(--ink)","stroke-width":1.5},g);txt(g,cx,cy+5,T+" K",{"text-anchor":"middle","font-size":13,"font-weight":700,fill:T<750?"#fff":"#222"});
+    const ph=(S8.t*0.8)%1;for(let i=0;i<n;i++){const a=2*Math.PI*i/n,L0=r+8+ph*30,L1=L0+28;let d="";for(let j=0;j<=24;j++){const s=L0+(L1-L0)*j/24,o=4*Math.sin(j*1.3+S8.t*8);d+=(j?"L":"M")+(cx+s*Math.cos(a)-o*Math.sin(a)).toFixed(1)+","+(cy+s*Math.sin(a)+o*Math.cos(a)).toFixed(1)}E("path",{d,fill:"none",stroke:T<750?"var(--muted)":"var(--red)","stroke-width":1.6,opacity:(1-ph).toFixed(2)},g)}
+    txt(g,300,90,"P = σεAT⁴",{"font-size":15,"font-weight":700});txt(g,300,114,"ε = "+S.eps8.toFixed(2),{"font-size":12,fill:"var(--muted)"});txt(g,300,134,"A = "+A.toFixed(2)+" m²",{"font-size":12,fill:"var(--muted)"});
+    txt(g,300,170,tr(T<750?"ir8":"vis8"),{"font-size":11,fill:"var(--muted)"});ro.P.textContent=si(P,"W");ro.R.textContent="—";ro.E.textContent=si(P*60,"J")}}
+function dP(P){return Math.abs(P)>1e-9}
+
+/* ---------- 9. the ideal gas law ---------- */
+const S9={t:0,playing:PL(),P:null,ph:0,trail:[],lock:false};
+function u9(){if(S9.lock)return;const h=S.hold9;offCtl("V9",h!=="T"&&h!=="V"?true:h==="V");offCtl("T9",h==="T");
+  if(h==="p"){if(S9.ph===0)S9.ph=S.n9*R_*S.T9/S.V9;const V=Math.max(5,Math.min(50,S.n9*R_*S.T9/S9.ph));S9.lock=true;setOut("V9",+V.toFixed(1));S9.lock=false}else S9.ph=0}
+(function(){const c=$("#c9");seg(c,{id:"hold9",key:"hold9",options:[["T","hT"],["p","hP"],["V","hV"]],value:"T",on:()=>{S9.ph=0;S9.trail=[];u9()}});
+  slider(c,{id:"n9",key:"n9",min:0.5,max:2,step:0.1,value:1,fmt:v=>v.toFixed(1)+" mol",on:u9});slider(c,{id:"V9",key:"V9",min:5,max:50,step:0.1,value:25,fmt:v=>v.toFixed(1)+" L",on:u9});
+  slider(c,{id:"T9",key:"T9",min:100,max:600,step:5,value:300,fmt:v=>v+" K",on:u9});S.ro9=readout(c,[["p","rp9"],["N","rN9"],["pV","rpV9"],["nRT","rnRT9"]]);u9()})();
+function draw9(dt){const n=S.n9,V=S.V9,T=S.T9,p=n*R_*T/V;const g=$("#v9");g.innerHTML="";const x0=30,x1=170,yb=250,yp=yb-V*4;
+  const N=Math.round(24*n);if(!S9.P||S9.P.length!==N)S9.P=makeGas(N,{x0:x0+4,x1:x1-4,y0:yb-80,y1:yb-4});moveGas(S9.P,dt,{x0:x0+3,x1:x1-3,y0:yp+3,y1:yb-3},18*Math.sqrt(T/300),2.4);
+  E("path",{d:`M${x0},30 V${yb} H${x1} V30`,fill:"none",stroke:"var(--ink)","stroke-width":2.5},g);drawGas(g,S9.P,"var(--ink)",2.4);E("rect",{x:x0+2,y:yp-8,width:x1-x0-4,height:8,fill:"var(--muted)"},g);
+  E("rect",{x:x0-10,y:yb,width:x1-x0+20,height:10,rx:3,style:`fill:${tcol(T,100,600)}`,opacity:.8},g);
+  const tr9=S9.trail;const last=tr9[tr9.length-1];if(!last||Math.hypot(last[0]-V,last[1]-p)>0.3)tr9.push([V,p]);if(tr9.length>200)tr9.shift();
+  const pm=Math.max(n*R_*T/5,p)*1.05;const G=graph(g,{l:236,r:425,t0:30,b:250,xmin:0,xmax:52,ymin:0,ymax:pm,xt:[[0,"0"],[25,"25"],[50,"50 L"]],yt:[[0,"0"],[Math.round(pm/2),String(Math.round(pm/2))],[Math.round(pm*0.95),Math.round(pm*0.95)+" kPa"]],yl:"p",xl:"V"});
+  plot(g,G,v=>n*R_*T/v,Math.max(4.5,n*R_*T/pm),52,"var(--magenta)",1.6,120,{"stroke-dasharray":"5 4"});if(tr9.length>1)E("path",{d:polyPath(G,tr9),fill:"none",stroke:"var(--blue)","stroke-width":2.5,opacity:.6},g);
+  E("circle",{cx:G.X(V),cy:G.Y(p),r:6,fill:"var(--red)",stroke:"var(--panel)","stroke-width":2},g);lbl(g,G.X(40),G.Y(n*R_*T/40)-8,"T = "+T+" K","var(--magenta)",{"text-anchor":"middle","font-size":11});
+  const ro=S.ro9;ro.p.textContent=fx(p,1)+" kPa";ro.N.textContent=sci(n*NA_);ro.pV.textContent=fx(p*V,0)+" J";ro.nRT.textContent=fx(n*R_*T,0)+" J"}
+
+/* ---------- 10. work done by an ideal gas ---------- */
+const S10={t:0,playing:PL()};
+(function(){const c=$("#c10");seg(c,{id:"pr10",key:"pr10",options:[["T","p10T"],["p","p10p"],["V","p10V"]],value:"T",on:()=>{S10.t=0;offCtl("Vf10",S.pr10==="V")}});
+  slider(c,{id:"T10",key:"T10",min:200,max:600,step:10,value:300,fmt:v=>v+" K",on:noop});slider(c,{id:"Vi10",key:"Vi10",min:5,max:40,step:1,value:10,fmt:v=>v+" L",on:noop});slider(c,{id:"Vf10",key:"Vf10",min:5,max:40,step:1,value:30,fmt:v=>v+" L",on:noop});
+  transport(c,S10);S.ro10=readout(c,[["f","rWf10"],["n","rWn10"],["s","rS10"]])})();
+function draw10(dt){clock(S10,dt);const T=S.T10,Vi=S.Vi10,Vf=S.Vf10,pr=S.pr10,pi=R_*T/Vi;let P,Wf,lab;
+  if(pr==="T"){P=sampleFn(v=>R_*T/v,Vi,Vf,80);Wf=R_*T*Math.log(Vf/Vi);lab="nRT ln(V_f/V_i)"}else if(pr==="p"){P=[[Vi,pi],[Vf,pi]];Wf=pi*(Vf-Vi);lab="p(V_f − V_i)"}else{P=[[Vi,pi],[Vi,1.5*pi]];Wf=0;lab="0"}
+  const g=$("#v10");g.innerHTML="";const pm=Math.max(R_*600/5,1.6*pi)*1.02,Wn=workOf(P);const G=graph(g,{l:60,r:420,t0:26,b:240,xmin:0,xmax:42,ymin:0,ymax:pm,xt:[[0,"0"],[10,"10"],[20,"20"],[30,"30"],[40,"40 L"]],yt:[[0,"0"],[500,"500"],[1000,"1000 kPa"]],yl:"p",xl:"V"});
+  plot(g,G,v=>R_*T/v,Math.max(3.5,R_*T/pm),42,"var(--muted)",1.2,120,{"stroke-dasharray":"4 4"});if(pr!=="V")E("path",{d:polyPath(G,P.concat([[P[P.length-1][0],0],[P[0][0],0]]))+"Z",fill:Wn>=0?"var(--green)":"var(--red)","fill-opacity":.22},g);
+  E("path",{d:polyPath(G,P),fill:"none",stroke:"var(--blue)","stroke-width":3},g);const q=polyAt(P,Math.min(1,(S10.t/4)%1.3));E("circle",{cx:G.X(q[0]),cy:G.Y(q[1]),r:6,fill:"var(--red)",stroke:"var(--panel)","stroke-width":2},g);
+  lbl(g,G.X(26),G.Y(pm*0.82),"W = "+lab+" = "+fx(Wf,0)+" J","var(--ink)",{"text-anchor":"middle","font-weight":700});
+  const ro=S.ro10;ro.f.textContent=Jx(Wf);ro.n.textContent=Jx(Wn);ro.s.innerHTML=tr(Math.abs(Wf)<1e-6?"s10z":Wf>0?"s5p":"s10n")}
+
+/* ---------- 11. pressure from molecules hitting a wall ---------- */
+const GAS=[["H2",2.016],["He",4.003],["N2",28.01],["O2",32.00],["CO2",44.01]];
+const S11={t:0,playing:PL(),P:null,hits:[],flash:-9,sig:0};const B11={x0:30,x1:230,y0:40,y1:240},VS11=0.3;
+function sig11(){const M=GAS.find(x=>x[0]===S.gas11)[1]/1000;return Math.sqrt(R_*S.T11/M)}
+function rescale11(){const s=sig11();if(S11.P&&S11.sig){const f=s/S11.sig;S11.P.forEach(p=>{p.vx*=f;p.vy*=f;p.vz*=f})}S11.sig=s;S11.hits=[]}
+(function(){const c=$("#c11");sel(c,{id:"gas11",key:"gas",options:GAS.map(([k])=>[k,"g_"+k]),value:"O2",on:rescale11});slider(c,{id:"T11",key:"T11",min:20,max:1000,step:10,value:300,fmt:v=>v+" K",on:rescale11});
+  transport(c,S11,()=>{S11.P=null;S11.hits=[]});S.ro11=readout(c,[["v","rv11"],["r","rR11"],["dt","rDt11"]])})();
+function draw11(dt){const b=B11;if(!S11.P){S11.sig=sig11();S11.P=makeGas(80,b);S11.P.forEach(p=>{p.vx*=S11.sig;p.vy*=S11.sig;p.vz*=S11.sig});S11.t=0}
+  if(S11.playing&&dt>0){S11.t+=dt;moveGas(S11.P,dt,b,VS11,3,(p,i)=>{S11.hits.push([S11.t,2*Math.abs(p.vx)]);if(i===0)S11.flash=S11.t})}
+  const Wd=10;S11.hits=S11.hits.filter(h=>h[0]>S11.t-Wd);const tw=Math.min(Wd,S11.t),Lx=b.x1-b.x0,Ly=b.y1-b.y0;
+  const meas=tw>0.5?S11.hits.reduce((a,h)=>a+h[1],0)/(tw*Ly):0,pred=VS11*S11.P.reduce((a,p)=>a+p.vx*p.vx,0)/(Lx*Ly);/* both in the same (m/s)-based units */
+  const g=$("#v11");g.innerHTML="";E("rect",{x:b.x0,y:b.y0,width:Lx,height:Ly,fill:"none",stroke:"var(--ink)","stroke-width":2},g);E("rect",{x:b.x1,y:b.y0,width:8,height:Ly,fill:"var(--copper)",opacity:.7},g);
+  drawGas(g,S11.P,"var(--blue)",2.4,0);const p0=S11.P[0];if(S11.t-S11.flash<0.4){arrow(g,b.x1-4,p0.y,b.x1-40,p0.y,"var(--magenta)",3,9);lbl(g,b.x1-44,p0.y-8,"Δp_x = −2mv_x","var(--magenta)",{"text-anchor":"end","font-size":11})}
+  txt(g,b.x1+4,b.y0-8,tr("wall11"),{"font-size":11,fill:"var(--copper)","text-anchor":"middle"});
+  const bx=290,bw=40,H=180,yb=240,mx=Math.max(meas,pred)*1.2||1;[[meas,"var(--copper)",tr("meas11")],[pred,"var(--blue)","Nm⟨v²_x⟩/V"]].forEach(([v,cl,s],i)=>{const hh=H*v/mx;E("rect",{x:bx+i*70,y:yb-hh,width:bw,height:hh,fill:cl,opacity:.8},g);txt(g,bx+i*70+bw/2,yb+16,s,{"text-anchor":"middle","font-size":10,fill:cl})});
+  E("line",{x1:bx-10,x2:bx+120,y1:yb,y2:yb,stroke:"var(--muted)"},g);txt(g,bx+55,30,tr("pres11"),{"text-anchor":"middle","font-size":12,"font-weight":700});
+  const M=GAS.find(x=>x[0]===S.gas11)[1]/1000,vr=Math.sqrt(3*R_*S.T11/M),ro=S.ro11;ro.v.textContent=fx(vr,0)+" m/s";ro.r.textContent=tw>0.5?fx(meas/pred,3):tr("meas17");ro.dt.textContent=Math.abs(p0.vx)>1?secs(2*Lx/(Math.abs(p0.vx)*VS11)):"—"}
+
+/* ---------- 12. Maxwell speed distribution ---------- */
+(function(){const c=$("#c12");sel(c,{id:"gas12",key:"gas",options:GAS.map(([k])=>[k,"g_"+k]),value:"O2",on:noop});slider(c,{id:"T12",key:"T12",min:50,max:1500,step:10,value:300,fmt:v=>v+" K",on:noop});
+  slider(c,{id:"T212",key:"T212",min:50,max:1500,step:10,value:80,fmt:v=>v+" K",on:noop});slider(c,{id:"v112",key:"v112",min:0,max:3000,step:10,value:300,fmt:v=>v+" m/s",on:noop});slider(c,{id:"v212",key:"v212",min:0,max:3000,step:10,value:500,fmt:v=>v+" m/s",on:noop});
+  S.ro12=readout(c,[["p","rvp12"],["a","rva12"],["r","rvr12"],["K","rK12"],["f","rF12"]])})();
+function maxw(v,T,M){const a=M/(2*R_*T);return 4*Math.PI*(a/Math.PI)**1.5*v*v*Math.exp(-a*v*v)}
+function draw12(){const M=GAS.find(x=>x[0]===S.gas12)[1]/1000,T=S.T12,T2=S.T212,vp=Math.sqrt(2*R_*T/M),va=Math.sqrt(8*R_*T/(Math.PI*M)),vr=Math.sqrt(3*R_*T/M);
+  const vmax=Math.ceil(2.6*Math.max(vr,Math.sqrt(3*R_*T2/M))/200)*200,ym=Math.max(maxw(vp,T,M),maxw(Math.sqrt(2*R_*T2/M),T2,M))*1.12*1000;
+  const g=$("#v12");g.innerHTML="";const G=graph(g,{l:60,r:420,t0:26,b:236,xmin:0,xmax:vmax,ymin:0,ymax:ym,xt:[[0,"0"],[vmax/2,String(vmax/2)],[vmax,vmax+" m/s"]],yt:[[0,"0"],[+(ym/2).toFixed(2),fx(ym/2,2)],[+(ym*0.9).toFixed(2),fx(ym*0.9,2)]],yl:"P(v) (10⁻³ s/m)"});
+  const v1=Math.min(S.v112,S.v212),v2=Math.max(S.v112,S.v212),f=v=>maxw(v,T,M)*1000;if(v2>v1){const A=sampleFn(f,Math.min(v1,vmax),Math.min(v2,vmax),80);E("path",{d:polyPath(G,A.concat([[A[A.length-1][0],0],[A[0][0],0]]))+"Z",fill:"var(--copper)","fill-opacity":.35},g)}
+  plot(g,G,v=>maxw(v,T2,M)*1000,0,vmax,"var(--red)",2,300,{"stroke-dasharray":"6 4"});plot(g,G,f,0,vmax,"var(--green)",3,300);
+  [[vp,"v_p",""],[va,"v_avg","5 3"],[vr,"v_rms","1.5 3"]].forEach(([v,s,da],i)=>{E("line",{x1:G.X(v),x2:G.X(v),y1:G.Y(0),y2:G.Y(f(v)),stroke:"var(--blue)","stroke-width":2,"stroke-dasharray":da},g);const ly=40+i*18;E("line",{x1:340,x2:362,y1:ly-4,y2:ly-4,stroke:"var(--blue)","stroke-width":2,"stroke-dasharray":da},g);txt(g,368,ly,s,{"font-size":11,fill:"var(--blue)"})});
+  lbl(g,G.X(vp),G.Y(f(vp))-8,"T = "+T+" K","var(--green)",{"text-anchor":"middle","font-size":11});const vp2=Math.sqrt(2*R_*T2/M);lbl(g,Math.min(G.X(vp2),400),G.Y(maxw(vp2,T2,M)*1000)-8,"T = "+T2+" K","var(--red)",{"text-anchor":"middle","font-size":11});
+  let fr=0;const n=400;for(let i=0;i<n;i++){const a=v1+(v2-v1)*i/n,b=v1+(v2-v1)*(i+1)/n;fr+=(maxw(a,T,M)+4*maxw((a+b)/2,T,M)+maxw(b,T,M))/6*(b-a)}
+  const ro=S.ro12;ro.p.textContent=fx(vp,0)+" m/s";ro.a.textContent=fx(va,0)+" m/s";ro.r.textContent=fx(vr,0)+" m/s";ro.K.textContent=sci(1.5*KB*T)+" J";ro.f.textContent=pctl(fr,1)}
+
+/* ---------- 13. molar specific heats: constant volume vs constant pressure ---------- */
+const S13={t:0,playing:PL(),A:null,B:null};const P13=101.3,TI13=300;
+(function(){const c=$("#c13");seg(c,{id:"gs13",key:"gs13",options:[["1.5","mono"],["2.5","di"]],value:"1.5",on:()=>{S13.t=0}});slider(c,{id:"Q13",key:"Q13",min:200,max:3000,step:100,value:1500,fmt:v=>v+" J",on:()=>{S13.t=0}});
+  transport(c,S13);S.ro13=readout(c,[["cv","rCv13"],["cp","rCp13"],["tv","rTv13"],["tp","rTp13"],["W","rW13"],["g","rG13"]])})();
+function draw13(dt){clock(S13,dt);const cv=parseFloat(S.gs13)*R_,cp=cv+R_,Q=S.Q13,u=Math.min(1,S13.t/3),Qn=u*Q,dTv=Qn/cv,dTp=Qn/cp,Vi=R_*TI13/P13,dV=R_*dTp/P13;
+  const g=$("#v13");g.innerHTML="";const cyl=(x0,V,T,pin,key,lab)=>{const x1=x0+120,yb=230,yp=yb-V*5.2;const box={x0:x0+3,x1:x1-3,y0:yp+3,y1:yb-3};if(!S13[key])S13[key]=makeGas(26,{x0:x0+4,x1:x1-4,y0:yb-100,y1:yb-4});moveGas(S13[key],dt,box,16*Math.sqrt(T/300),2.4);
+    E("path",{d:`M${x0},40 V${yb} H${x1} V40`,fill:"none",stroke:"var(--ink)","stroke-width":2.5},g);drawGas(g,S13[key],"var(--ink)",2.4);E("rect",{x:x0+2,y:yp-8,width:116,height:8,fill:"var(--muted)"},g);
+    if(pin){[x0-10,x1-4].forEach(x=>E("rect",{x,y:yp-14,width:14,height:5,fill:"var(--red)"},g));lbl(g,x0+60,yp-22,tr("pin13"),"var(--red)",{"text-anchor":"middle","font-size":11})}else{E("rect",{x:x0+30,y:yp-36,width:60,height:28,rx:3,fill:"var(--copper)",opacity:.8},g);if(dV>0.01)farrow(g,x1+14,yp,0,-26,"var(--green)","W",4,4)}
+    E("rect",{x:x0-8,y:yb+2,width:136,height:9,rx:3,fill:"var(--red)",opacity:u<1?.85:.35},g);txt(g,x0+60,262,lab,{"text-anchor":"middle","font-size":12,"font-weight":700});txt(g,x0+60,282,"T = "+fx(TI13+(pin?dTv:dTp),1)+" K",{"text-anchor":"middle","font-size":12})};
+  cyl(40,Vi,TI13+dTv,true,"A",tr("cV13"));cyl(260,Vi+dV,TI13+dTp,false,"B",tr("cP13"));
+  sbars($("#bars13"),[["b13v",cv*dTv,"var(--magenta)",Jx],["b13p",cv*dTp,"var(--magenta)",Jx],["b13w",R_*dTp,"var(--green)",Jx]],Q);
+  const ro=S.ro13;ro.cv.textContent=fx(cv,2)+" J/(mol·K)";ro.cp.textContent=fx(cp,2)+" J/(mol·K)";ro.tv.textContent=fx(dTv,2)+" K";ro.tp.textContent=fx(dTp,2)+" K";ro.W.textContent=Jx(R_*dTp);ro.g.textContent=fx(cp/cv,3)}
+
+/* ---------- 14. degrees of freedom ---------- */
+const S14={t:0,playing:PL(),x:120,y:110,vx:30,vy:20,ang:0};
+function cvR(T,di){if(!di)return 1.5;const lg=Math.log(T);return 1.5+1/(1+Math.exp(-(lg-Math.log(80))/0.3))+1/(1+Math.exp(-(lg-Math.log(2200))/0.35))}
+(function(){const c=$("#c14");seg(c,{id:"mol14",key:"mol14",options:[["mono","mono"],["di","di"]],value:"di",on:noop});slider(c,{id:"lT14",key:"lT14",min:1.3,max:4,step:0.01,value:Math.log10(300),fmt:v=>fx(10**v,0)+" K",on:noop});
+  transport(c,S14);S.ro14=readout(c,[["c","rCv14"],["f","rF14"],["p","rCp14"],["g","rG14"]])})();
+function draw14(dt){clock(S14,dt);const T=10**S.lT14,di=S.mol14==="di",c=cvR(T,di),lg=Math.log(T),rot=di?1/(1+Math.exp(-(lg-Math.log(80))/0.3)):0,vib=di?1/(1+Math.exp(-(lg-Math.log(2200))/0.35)):0;const o=S14,g=$("#v14");g.innerHTML="";
+  if(o.playing){const s=Math.sqrt(T/300)*0.6+0.4;o.x+=o.vx*dt*s;o.y+=o.vy*dt*s;if(o.x<60||o.x>180)o.vx*=-1;if(o.y<70||o.y>150)o.vy*=-1;o.ang+=dt*rot*4*Math.sqrt(T/300+0.2)}
+  E("rect",{x:20,y:30,width:200,height:160,rx:8,fill:"none",stroke:"var(--line)"},g);const d=di?22+vib*6*Math.sin(S14.t*22):0;
+  if(di){const ax=Math.cos(o.ang)*d,ay=Math.sin(o.ang)*d;E("line",{x1:o.x-ax,y1:o.y-ay,x2:o.x+ax,y2:o.y+ay,stroke:"var(--ink)","stroke-width":3},g);[[-1],[1]].forEach(([s])=>E("circle",{cx:o.x+s*ax,cy:o.y+s*ay,r:11,fill:"var(--blue)",stroke:"var(--ink)"},g))}
+  else E("circle",{cx:o.x,cy:o.y,r:12,fill:"var(--blue)",stroke:"var(--ink)"},g);
+  const on=[[1,tr("tra14"),"var(--green)"],[rot,tr("rot14"),"var(--magenta)"],[vib,tr("vib14"),"var(--red)"]];on.forEach(([f,s,cl],i)=>{if(!di&&i>0)return;txt(g,30,212+i*16,s+(f>0.5?" ✓":""),{"font-size":12,fill:cl,opacity:f>0.5?1:.4,"font-weight":f>0.5?700:400})});
+  const G=graph(g,{l:260,r:425,t0:30,b:236,xmin:Math.log10(20),xmax:4,ymin:0,ymax:4,xt:[[Math.log10(20),"20"],[2,"100"],[3,"1000"],[4,"10⁴ K"]],yt:[[1.5,"3/2"],[2.5,"5/2"],[3.5,"7/2"]],yl:"C_V/R"});
+  plot(g,G,x=>cvR(10**x,di),Math.log10(20),4,"var(--green)",3,200);E("circle",{cx:G.X(S.lT14),cy:G.Y(c),r:6,fill:"var(--red)",stroke:"var(--panel)","stroke-width":2},g);
+  const ro=S.ro14;ro.c.textContent=fx(c,2)+" R";ro.f.textContent=fx(2*c,1);ro.p.textContent=fx(c+1,2)+" R";ro.g.textContent=fx((c+1)/c,3)}
+
+/* ---------- 15. adiabatic expansion ---------- */
+const S15={t:0,playing:PL()};const VI15=10;
+(function(){const c=$("#c15");seg(c,{id:"g15",key:"gs13",options:[["1.6667","mono"],["1.4","di"]],value:"1.6667",on:noop});check(c,{id:"fr15",key:"fr15",value:false,on:()=>{S15.t=0}});
+  slider(c,{id:"Ti15",key:"Ti15",min:300,max:700,step:10,value:700,fmt:v=>v+" K",on:noop});slider(c,{id:"Vf15",key:"Vf15",min:10,max:40,step:1,value:30,fmt:v=>v+" L",on:noop});transport(c,S15);
+  S.ro15=readout(c,[["pf","rPf15"],["Tf","rTf15"],["W","rW6"],["E","rE6"],["c","rC15"]])})();
+function draw15(dt){clock(S15,dt);const gm=parseFloat(S.g15),Ti=S.Ti15,Vf=S.Vf15,pi=R_*Ti/VI15,free=S.fr15;const Tf=free?Ti:Ti*(VI15/Vf)**(gm-1),pf=R_*Tf/Vf,W=free?0:R_/(gm-1)*(Ti-Tf);
+  const g=$("#v15");g.innerHTML="";const pm=R_*700/8;const G=graph(g,{l:60,r:420,t0:26,b:240,xmin:0,xmax:42,ymin:0,ymax:pm,xt:[[0,"0"],[10,"10"],[20,"20"],[30,"30"],[40,"40 L"]],yt:[[0,"0"],[300,"300"],[600,"600 kPa"]],yl:"p",xl:"V"});
+  [300,500,700].forEach(T=>{plot(g,G,v=>Math.min(pm,R_*T/v),R_*T/pm,42,"var(--copper)",1.4,120,{opacity:.6});lbl(g,G.X(41),G.Y(R_*T/41)-5,T+" K","var(--copper)",{"text-anchor":"end","font-size":10})});
+  plot(g,G,v=>Math.min(pm,pi*VI15/v),VI15,42,"var(--magenta)",1.4,100,{"stroke-dasharray":"5 4"});
+  const P=free?[[VI15,pi],[Vf,pf]]:sampleFn(v=>pi*(VI15/v)**gm,VI15,Vf,80);
+  if(free)E("path",{d:polyPath(G,P),fill:"none",stroke:"var(--muted)","stroke-width":2,"stroke-dasharray":"2 6"},g);else{E("path",{d:polyPath(G,P),fill:"none",stroke:"var(--green)","stroke-width":3.2},g);const q=polyAt(P,Math.min(1,(S15.t/4)%1.3));E("circle",{cx:G.X(q[0]),cy:G.Y(q[1]),r:6,fill:"var(--red)",stroke:"var(--panel)","stroke-width":2},g)}
+  [[VI15,pi,"i"],[Vf,pf,"f"]].forEach(([v,p,s])=>{E("circle",{cx:G.X(v),cy:G.Y(p),r:4.5,fill:"var(--ink)"},g);lbl(g,G.X(v)+7,G.Y(p)-7,s,"var(--ink)",{"font-style":"italic","font-weight":700})});
+  lbl(g,G.X(26),G.Y(pm*0.9),tr(free?"lfree15":"ladia15"),free?"var(--muted)":"var(--green)",{"text-anchor":"middle","font-weight":700,"font-size":12});lbl(g,G.X(26),G.Y(pm*0.9)+16,tr("liso15"),"var(--magenta)",{"text-anchor":"middle","font-size":11});
+  const ro=S.ro15;ro.pf.textContent=fx(pf,1)+" kPa";ro.Tf.textContent=fx(Tf,1)+" K";ro.W.textContent=Jx(W);ro.E.textContent=Jx(-W);ro.c.textContent=free?fx(pi*VI15,0)+" → "+fx(pf*Vf,0)+" (pV)":fx(pi*VI15**gm,0)+" → "+fx(pf*Vf**gm,0)}
+
+/* ---------- loop ---------- */
+function applyText(){document.querySelectorAll("[data-i18n]").forEach(el=>{el.innerHTML=tr(el.dataset.i18n)})}
+const DRAWS=[["hero",drawHero],["v1",draw1],["v2",draw2],["v3",draw3],["v4",draw4],["v5",draw5],["v6",draw6],["v7",draw7],["v8",draw8],["v9",draw9],["v10",draw10],["v11",draw11],["v12",draw12],["v13",draw13],["v14",draw14],["v15",draw15]];
+
+
+const VIS=new Set();const io="IntersectionObserver" in window?new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)VIS.add(e.target.id);else VIS.delete(e.target.id)}),{rootMargin:"150px"}):null;
+DRAWS.forEach(([id])=>{if(io)io.observe(document.getElementById(id));else VIS.add(id)});
+let last=performance.now();
+function frame(now){const dt=Math.min(0.05,(now-last)/1000);last=now;DRAWS.forEach(([id,f])=>{if(VIS.has(id))f(dt)});requestAnimationFrame(frame)}
+applyText();DRAWS.forEach(([,f])=>f(0));requestAnimationFrame(frame);
+
+</script>
+</body>
+</html>
