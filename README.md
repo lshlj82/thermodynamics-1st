@@ -64,7 +64,7 @@ The header animation shows a gas in a cylinder running a cycle. Heat flows in or
 - **Simplified pressure model:** In section 11 the molecules move in a flat, two-dimensional box and don't collide with each other, as the notes assume for an ideal gas.
 - **Animation speed:** The heating curve runs 200 times faster than real time, and the page says so on screen. The readouts always show the real values.
 - **Units:** In the $p$–$V$ sections, volumes are in liters and pressures in kilopascals, so 1 kPa·L = 1 J.
-- **Display:** The pages follow the system's light or dark setting. Under `prefers-reduced-motion`, the animations start paused and can be played by hand. Only simulations that are currently on screen are animated.
+- **Display:** The pages follow the system's light or dark setting, and a sun/moon button in the top-right corner switches by hand, and the choice is remembered across pages. Under `prefers-reduced-motion`, the animations start paused and can be played by hand. Only simulations that are currently on screen are animated.
 
 ## Credits
 
