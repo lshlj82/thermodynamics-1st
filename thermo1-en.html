@@ -66,6 +66,10 @@ h2{font-size:clamp(26px,3.6vw,36px);line-height:1.15;margin:0 0 14px;letter-spac
 h2 .n{font-size:.62em;color:var(--blue);border:2px solid var(--blue);border-radius:50%;width:1.7em;height:1.7em;display:inline-grid;place-items:center;flex:none;transform:translateY(-.15em)}
 .prose{max-width:68ch}
 .prose p{margin:0 0 12px}
+.next-list{max-width:68ch;margin:0;padding:0;list-style:none}
+.next-list li{margin:0 0 14px;padding:10px 14px;border-left:3px solid var(--blue);background:var(--panel)}
+.next-list .c{display:block;font-weight:700;margin-bottom:2px}
+.next-list .c .ko{font-weight:400;color:var(--muted);margin-left:6px}
 .key{display:inline-flex;flex-wrap:wrap;gap:10px 34px;align-items:center;border:6px solid var(--cyan);border-radius:5px;padding:12px 22px;margin:8px 0 22px;font-size:19px;background:var(--panel)}
 .key span{white-space:nowrap}
 .frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;font-size:.9em;line-height:1.15;margin:0 2px}
@@ -248,6 +252,15 @@ button.theme-btn svg{width:20px; height:20px; fill:none; stroke:currentColor; st
   <div class="key"><span><i>pV</i><sup><i>γ</i></sup> = const</span><span><i>TV</i><sup><i>γ</i>−1</sup> = const</span><span><i>p</i><sub>i</sub><i>V</i><span class="ss"><sup><i>γ</i></sup><sub>i</sub></span> = <i>p</i><sub>f</sub><i>V</i><span class="ss"><sup><i>γ</i></sup><sub>f</sub></span></span></div>
   <div class="sim"><div class="viz"><svg id="v15" viewBox="0 0 440 262" role="img" aria-label="An adiabat compared with isotherms on a p–V diagram"></svg></div><div class="controls" id="c15"></div></div>
 </section>
+<section id="next"><h2>Where to go next</h2>
+  <div class="prose"><p>This page belongs to Physics 1. Later courses in the department take the same ideas much further.</p></div>
+  <ul class="next-list">
+    <li><span class="c"><a href="https://lshlj82.github.io/modern-physics-GNU/ch09-statistical-physics.html">Modern Physics, Chapter 9: Statistical physics</a><span class="ko" lang="ko">현대물리학 9장</span></span>Derives the Maxwell speed distribution (section 12 here) and the equipartition theorem behind <i>C</i><sub><i>V</i></sub> and the degrees of freedom (sections 13–14), then adds Fermi–Dirac and Bose–Einstein statistics.</li>
+    <li><span class="c"><a href="https://lshlj82.github.io/statphys1-GNU/">Statistical Physics 1</a><span class="ko" lang="ko">통계물리1</span></span>Temperature, heat, work, and the first law in depth, then entropy and what temperature really is. Start with <a href="https://lshlj82.github.io/temperature-energy/">Temperature and Energy</a> and <a href="https://lshlj82.github.io/heat-work/">Heat and Work</a>; phase changes (section 4) return in <a href="https://lshlj82.github.io/phase-transformation/">Phase Transformation</a>.</li>
+    <li><span class="c"><a href="https://lshlj82.github.io/statphys2-GNU/">Statistical Physics 2</a><span class="ko" lang="ko">통계물리2</span></span>The Boltzmann factor, from which the speed distribution follows: <a href="https://lshlj82.github.io/Boltzmann-ideal-gas/">Boltzmann statistics of an ideal gas</a>. Heat capacities of solids beyond equipartition: <a href="https://lshlj82.github.io/Debye-theory/">Debye theory of solids</a>.</li>
+    <li><span class="c">Graduate courses<span class="ko" lang="ko">대학원 과목</span></span><a href="https://lshlj82.github.io/phase-transition-and-critical-phenomena-GNU/">Phase Transitions and Critical Phenomena</a> (상전이와 임계현상) follows the liquid–gas transition of section 4 up to its critical point, where the difference between liquid and gas disappears, and <a href="https://lshlj82.github.io/special-topics-in-complex-systems-GNU/">Special Topics in Complex Systems</a> (복잡계 특론) treats percolation, the Ising model, and the renormalization group.</li>
+  </ul>
+</section>
 </main>
 <footer class="wrap"><p data-i18n="credit"></p></footer>
 
@@ -402,7 +415,7 @@ function farrow(g,x,y,dx,dy,col,label,lx=6,ly=-6){if(Math.hypot(dx,dy)<2)return;
 function playBtn(c,obj,key="playing"){const b=H("button",{type:"button",class:"btn"},c);const upd=()=>b.innerHTML=t(obj[key]?"pause":"play");b.addEventListener("click",()=>{obj[key]=!obj[key];upd()});obj._btn=upd;return b}
 const N=x=>fx(x,2)+" N";
 
-(function(){const toc=$("#toc");L.nav.forEach((n,k)=>{const a=H("a",{href:"#s"+(k+1)},toc);a.innerHTML=`<span>${k+1}</span>${n}`})})();
+(function(){const toc=$("#toc");L.nav.forEach((n,k)=>{const a=H("a",{href:"#s"+(k+1)},toc);a.innerHTML=`<span>${k+1}</span>${n}`});H("a",{href:"#next"},toc).textContent="Next courses"})();
 function coil(g,x0,x1,y,col="var(--magenta)",n=10,R=11){const lead=8,a=x0+lead,b=x1-lead,L=Math.max(4,b-a);const N=n*24,tilt=Math.min(0.42*R,0.45*L/n);
   const pt=k=>{const t=2*Math.PI*n*k/N;return[a+L*k/N+tilt*Math.sin(t),y-R*Math.cos(t),Math.sin(t)]};
   const segs=[[],[]];let prev=pt(0);for(let k=1;k<=N;k++){const p=pt(k);segs[(prev[2]+p[2])/2>=0?1:0].push(`M${prev[0].toFixed(1)},${prev[1].toFixed(1)}L${p[0].toFixed(1)},${p[1].toFixed(1)}`);prev=p}

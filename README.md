@@ -55,6 +55,8 @@ The fifteen sections follow the order of the lecture notes. Every value is recom
 
 The header animation shows a gas in a cylinder running a cycle. Heat flows in or out at the bottom, the piston does work, and a dot traces the same cycle on a $p$–$V$ diagram, next to $\Delta E_\text{int}=Q-W$.
 
+A closing section, *Where to go next* (더 공부하려면), on both language pages points to the department's later courses: [Modern Physics, Chapter 9](https://lshlj82.github.io/modern-physics-GNU/ch09-statistical-physics.html) (Maxwell distribution and equipartition), [Statistical Physics 1](https://lshlj82.github.io/statphys1-GNU/) and [Statistical Physics 2](https://lshlj82.github.io/statphys2-GNU/) with the specific demos that continue sections 4, 12, 13 and 14, and the graduate courses [Phase Transitions and Critical Phenomena](https://lshlj82.github.io/phase-transition-and-critical-phenomena-GNU/) and [Special Topics in Complex Systems](https://lshlj82.github.io/special-topics-in-complex-systems-GNU/). It is also linked from the end of the section bar.
+
 ## Notes on the model
 
 - **Sign convention:** $W$ is the work done **by** the gas, as in the notes, so the first law reads $\Delta E_\text{int}=Q-W$.
